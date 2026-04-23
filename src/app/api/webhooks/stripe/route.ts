@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "customer.subscription.updated": {
-        const sub = event.data.object as Stripe.Subscription;
+        const sub = event.data.object as Stripe.Subscription & { current_period_end: number };
 
         const existing = await prisma.subscription.findUnique({
           where: { stripeSubscriptionId: sub.id },
