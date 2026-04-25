@@ -11,6 +11,7 @@ export default function SettingsPage() {
     city: "",
     state: "",
     industry: "",
+    googleReviewLink: "",
   });
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -123,6 +124,25 @@ export default function SettingsPage() {
               <option>Other</option>
             </select>
           </Field>
+
+          <div className="border-t border-gray-200 pt-6 mt-2">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">Review Automation</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Find your link: Google Maps → your business → Share → Copy link. Or use{" "}
+              <a href="https://whitespark.ca/google-review-link-generator/" target="_blank" rel="noopener" className="text-blue-600 underline">
+                this generator
+              </a>.
+            </p>
+            <Field label="Google Review Link">
+              <input
+                type="url"
+                value={form.googleReviewLink ?? ""}
+                onChange={(e) => setForm({ ...form, googleReviewLink: e.target.value })}
+                className="input"
+                placeholder="https://g.page/r/your-place/review"
+              />
+            </Field>
+          </div>
 
           <div className="flex items-center gap-4 pt-2">
             <button

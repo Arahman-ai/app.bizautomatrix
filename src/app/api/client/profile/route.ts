@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { businessName, website, phone, address, city, state, industry } = body;
+  const { businessName, website, phone, address, city, state, industry, googleReviewLink } = body;
 
   const user = await prisma.user.findUnique({
     where: { email: session.user?.email! },
@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest) {
 
   const updated = await prisma.client.update({
     where: { id: user.client.id },
-    data: { businessName, website, phone, address, city, state, industry },
+    data: { businessName, website, phone, address, city, state, industry, googleReviewLink },
   });
 
   return NextResponse.json({ client: updated });
