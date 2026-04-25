@@ -15,6 +15,28 @@ export default async function DashboardPage() {
 
   const client = user?.client;
 
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const reviewRequestsThisMonth = client
+    ? await prisma.reviewRequest.count({
+        where: {
+          clientId: client.id,
+          createdAt: { gte: startOfMonth },
+        },
+      })
+    : 0;
+
+  const reviewRequestsClicked = client
+    ? await prisma.reviewRequest.count({
+        where: { clientId: client.id, status: "CLICKED" },
+      })
+    : 0;
+
+  const hasGoogleLink = !!client?.googleReviewLink;
+  const hasProfile = !!(client?.businessName && client?.phone && client?.city);
+
   return (
     <div>
       <div className="mb-8">
@@ -42,16 +64,16 @@ export default async function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <StatCard title="Google Reviews" value="—" sub="Connect to see data" color="yellow" />
-        <StatCard title="Social Posts" value="0" sub="Drafts waiting" color="blue" />
-        <StatCard title="Active Leads" value="0" sub="This month" color="green" />
+        <StatCard title="Review Requests" value={String(reviewRequestsThisMonth)} sub="Sent this month" color="yellow" />
+        <StatCard title="Links Clicked" value={String(reviewRequestsClicked)} sub="Customers engaged" color="green" />
+        <StatCard title="Click Rate" value={reviewRequestsThisMonth > 0 ? `${Math.round((reviewRequestsClicked / reviewRequestsThisMonth) * 100)}%` : "—"} sub="Of requests sent" color="blue" />
         <StatCard title="Plan" value={client?.plan ?? "FREE"} sub="Upgrade anytime" color="purple" />
       </div>
 
       {/* Quick Actions */}
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-        <ActionCard icon="⭐" title="Review Requests" desc="Send review requests to your customers via email or SMS." href="#" comingSoon />
+        <ActionCard icon="⭐" title="Review Requests" desc="Send review requests to your customers via email." href="/dashboard/reviews" />
         <ActionCard icon="📱" title="Social Media Drafts" desc="View and approve AI-generated posts for your business." href="#" comingSoon />
         <ActionCard icon="📊" title="Monthly Report" desc="See your latest performance report and insights." href="#" comingSoon />
         <ActionCard icon="📍" title="Google Business" desc="Optimize your Google Business Profile listing." href="#" comingSoon />
@@ -64,11 +86,10 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Getting Started Checklist</h2>
         <div className="space-y-3">
           <CheckItem done label="Create your account" />
-          <CheckItem done={false} label="Complete your business profile" />
-          <CheckItem done={false} label="Connect Google Business Profile" />
-          <CheckItem done={false} label="Send your first review request" />
-          <CheckItem done={false} label="Approve your first social post" />
-          <CheckItem done={client?.plan !== "FREE"} label="Upgrade to a paid plan" />
+          <CheckItem done={hasProfile} label="Complete your business profile" href="/dashboard/settings" />
+          <CheckItem done={hasGoogleLink} label="Add your Google Review link" href="/dashboard/settings" />
+          <CheckItem done={reviewRequestsThisMonth > 0} label="Send your first review request" href="/dashboard/reviews" />
+          <CheckItem done={client?.plan !== "FREE"} label="Upgrade to a paid plan" href="/dashboard/billing" />
         </div>
       </div>
     </div>
@@ -110,13 +131,19 @@ function ActionCard({ icon, title, desc, href, comingSoon }: {
   );
 }
 
-function CheckItem({ done, label }: { done: boolean; label: string }) {
+function CheckItem({ done, label, href }: { done: boolean; label: string; href?: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
+      <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
         done ? "bg-green-500 text-white" : "border-2 border-gray-300 text-transparent"
       }`}>✓</div>
-      <span className={done ? "text-gray-400 line-through" : "text-gray-700"}>{label}</span>
+      {!done && href ? (
+        <Link href={href} className="text-gray-700 hover:text-blue-600 hover:underline transition-colors">
+          {label}
+        </Link>
+      ) : (
+        <span className={done ? "text-gray-400 line-through" : "text-gray-700"}>{label}</span>
+      )}
     </div>
   );
 }
