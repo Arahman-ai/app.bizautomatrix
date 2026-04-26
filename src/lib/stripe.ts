@@ -8,7 +8,7 @@ export const PLANS = {
   STARTER: {
     name: "Starter",
     price: 49,
-    priceId: "price_1TPR5wK3lEhqHSIl79kAZtON",
+    priceId: "price_1TQTEhGd1AqVhyR5MosTPDwc",
     features: [
       "Review request automation",
       "Google Business Profile tools",
@@ -20,7 +20,7 @@ export const PLANS = {
   GROWTH: {
     name: "Growth",
     price: 99,
-    priceId: "price_1TPR9HK3lEhqHSIl0IkSCzDz",
+    priceId: "price_1TQTEfGd1AqVhyR5qGZUV55u",
     features: [
       "Everything in Starter",
       "Social media post drafts",
@@ -33,7 +33,7 @@ export const PLANS = {
   PRO: {
     name: "Pro",
     price: 199,
-    priceId: "price_1TPR9sK3lEhqHSIlbq4NIg66",
+    priceId: "price_1TQTEfGd1AqVhyR5UqQ9eQTq",
     features: [
       "Everything in Growth",
       "Full automation workflows",
