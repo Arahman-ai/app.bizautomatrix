@@ -1,10 +1,39 @@
-import { prisma } from "@/lib/prisma";
+"use client";
 
-export default async function ClientsPage() {
-  const clients = await prisma.client.findMany({
-    include: { user: true },
-    orderBy: { createdAt: "desc" },
-  });
+import { useEffect, useState } from "react";
+
+type Client = {
+  id: string;
+  businessName: string;
+  plan: string;
+  status: string;
+  createdAt: string;
+  user: { name: string | null; email: string };
+};
+
+export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/clients")
+      .then((r) => r.json())
+      .then((d) => { setClients(d.clients); setLoading(false); });
+  }, []);
+
+  async function update(id: string, field: "plan" | "status", value: string) {
+    setSaving(id + field);
+    await fetch(`/api/admin/clients/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [field]: value }),
+    });
+    setClients((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, [field]: value } : c))
+    );
+    setSaving(null);
+  }
 
   return (
     <div>
@@ -14,11 +43,12 @@ export default async function ClientsPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        {clients.length === 0 ? (
+        {loading ? (
+          <div className="px-6 py-16 text-center text-gray-400">Loading...</div>
+        ) : clients.length === 0 ? (
           <div className="px-6 py-16 text-center text-gray-400">
             <p className="text-4xl mb-3">👥</p>
             <p className="font-medium text-gray-600">No clients yet</p>
-            <p className="text-sm mt-1">Clients appear here when they sign up.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -34,7 +64,7 @@ export default async function ClientsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {clients.map((client: typeof clients[0]) => (
+                {clients.map((client) => (
                   <tr key={client.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {client.businessName}
@@ -46,23 +76,29 @@ export default async function ClientsPage() {
                       {client.user.email}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        client.plan === "PRO" ? "bg-purple-100 text-purple-700" :
-                        client.plan === "GROWTH" ? "bg-blue-100 text-blue-700" :
-                        client.plan === "STARTER" ? "bg-green-100 text-green-700" :
-                        "bg-gray-100 text-gray-600"
-                      }`}>
-                        {client.plan}
-                      </span>
+                      <select
+                        value={client.plan}
+                        disabled={saving === client.id + "plan"}
+                        onChange={(e) => update(client.id, "plan", e.target.value)}
+                        className="border border-gray-200 rounded-lg px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="FREE">FREE</option>
+                        <option value="STARTER">STARTER</option>
+                        <option value="GROWTH">GROWTH</option>
+                        <option value="PRO">PRO</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        client.status === "ACTIVE"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}>
-                        {client.status}
-                      </span>
+                      <select
+                        value={client.status}
+                        disabled={saving === client.id + "status"}
+                        onChange={(e) => update(client.id, "status", e.target.value)}
+                        className="border border-gray-200 rounded-lg px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="SUSPENDED">SUSPENDED</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 text-gray-400">
                       {new Date(client.createdAt).toLocaleDateString()}
