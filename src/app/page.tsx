@@ -92,26 +92,6 @@ const PLANS = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Maria Gonzalez",
-    business: "Bella Hair Studio, Miami FL",
-    text: "Within 3 months our Google reviews went from 12 to 87. We're now the top-rated salon in our area.",
-    rating: 5,
-  },
-  {
-    name: "James Parker",
-    business: "Parker's Auto Repair, Houston TX",
-    text: "I used to spend hours on social media. Now BizAutomatrix handles it and I just approve the posts.",
-    rating: 5,
-  },
-  {
-    name: "Linda Chen",
-    business: "Green Leaf Restaurant, Atlanta GA",
-    text: "The free audit showed us 3 things we were doing wrong on Google. Fixed them and bookings doubled.",
-    rating: 5,
-  },
-];
 
 export default function Home() {
   return (
@@ -238,22 +218,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Guarantee */}
       <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">What Business Owners Say</h2>
-            <p className="text-gray-600 text-lg">Real results from real local businesses.</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Our Promise to You</h2>
+            <p className="text-gray-600 text-lg">We stand behind everything we do.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white rounded-2xl border border-gray-200 p-6">
-                <div className="text-yellow-400 text-lg mb-3">{"★".repeat(t.rating)}</div>
-                <p className="text-gray-700 mb-4 italic">&ldquo;{t.text}&rdquo;</p>
-                <p className="font-semibold text-gray-900">{t.name}</p>
-                <p className="text-sm text-gray-500">{t.business}</p>
-              </div>
-            ))}
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <div className="text-5xl mb-4">🛡️</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">30-Day Money-Back Guarantee</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                If you don&apos;t see results in your first 30 days, we&apos;ll refund your first month — no questions asked.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <div className="text-5xl mb-4">🚫</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">No Long-Term Contracts</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Cancel anytime with one click. No cancellation fees, no fine print, no hassle. We earn your business every month.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <div className="text-5xl mb-4">📞</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Real Human Support</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                You get a real person — not a chatbot. Call or email us anytime and we&apos;ll respond within one business day.
+              </p>
+            </div>
+          </div>
+          <div className="mt-12 bg-blue-600 rounded-2xl p-8 text-center text-white">
+            <p className="text-2xl font-bold mb-2">Start risk-free today</p>
+            <p className="text-blue-100 mb-6">Get your free business audit — no credit card required.</p>
+            <a
+              href="#audit"
+              className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-50 transition-colors"
+            >
+              Get Your Free Audit →
+            </a>
           </div>
         </div>
       </section>
