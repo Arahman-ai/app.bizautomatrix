@@ -92,6 +92,51 @@ export async function sendReviewRequest({
   });
 }
 
+export async function sendWelcomeEmail(name: string, email: string, businessName: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.bizautomatrix.com";
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: `Welcome to BizAutomatrix, ${name.split(" ")[0]}!`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <div style="background: linear-gradient(135deg, #1e40af, #3b82f6); padding: 32px 24px; border-radius: 12px 12px 0 0; text-align: center;">
+          <h1 style="margin: 0; color: #ffffff; font-size: 28px;">Welcome to BizAutomatrix!</h1>
+          <p style="margin: 8px 0 0; color: rgba(255,255,255,0.85); font-size: 15px;">Your marketing is about to go on autopilot</p>
+        </div>
+        <div style="padding: 32px 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+          <p style="color: #374151; font-size: 16px;">Hi <strong>${name.split(" ")[0]}</strong>,</p>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+            Welcome aboard! Your account for <strong>${businessName}</strong> is ready. Here's how to get started:
+          </p>
+          <div style="background: #f8fafc; border-radius: 10px; padding: 20px; margin: 24px 0;">
+            <p style="margin: 0 0 12px; font-weight: bold; color: #1e40af;">Your Getting Started Checklist:</p>
+            <p style="margin: 8px 0; color: #374151;">✅ Create your account</p>
+            <p style="margin: 8px 0; color: #374151;">⬜ Complete your business profile</p>
+            <p style="margin: 8px 0; color: #374151;">⬜ Add your Google Review link</p>
+            <p style="margin: 8px 0; color: #374151;">⬜ Send your first review request</p>
+            <p style="margin: 8px 0; color: #374151;">⬜ Upgrade to a paid plan</p>
+          </div>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${appUrl}/dashboard" style="background: #2563eb; color: #ffffff; padding: 16px 36px; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 16px; display: inline-block;">
+              Go to Your Dashboard →
+            </a>
+          </div>
+          <p style="color: #374151; font-size: 14px; line-height: 1.6;">
+            Questions? Just reply to this email or reach us at
+            <a href="tel:+14042037674" style="color: #2563eb;">+1 (404) 203-7674</a>.
+          </p>
+          <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 24px 0;" />
+          <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+            © ${new Date().getFullYear()} BizAutomatrix ·
+            <a href="https://bizautomatrix.com" style="color: #6b7280;">bizautomatrix.com</a>
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 export async function sendAuditConfirmation(email: string, businessName: string) {
   await resend.emails.send({
     from: FROM,

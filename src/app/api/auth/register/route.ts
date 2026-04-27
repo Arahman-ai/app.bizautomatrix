@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { sendWelcomeEmail } from "@/lib/email";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -41,6 +42,8 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    sendWelcomeEmail(data.name, data.email, data.businessName).catch(console.error);
 
     return NextResponse.json(
       { success: true, userId: user.id },
