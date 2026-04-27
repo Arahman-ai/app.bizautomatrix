@@ -47,6 +47,25 @@ export async function POST(req: NextRequest) {
       sendAuditConfirmation(data.email, data.businessName).catch(console.error),
     ]);
 
+    // Trigger n8n lead follow-up workflow
+    const n8nFollowupUrl = process.env.N8N_LEAD_FOLLOWUP_WEBHOOK_URL;
+    if (n8nFollowupUrl) {
+      fetch(n8nFollowupUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-webhook-secret": process.env.N8N_WEBHOOK_SECRET || "",
+        },
+        body: JSON.stringify({
+          leadId: lead.id,
+          businessName: data.businessName,
+          ownerName: data.ownerName || "",
+          email: data.email,
+          appUrl: process.env.NEXT_PUBLIC_APP_URL || "https://app.bizautomatrix.com",
+        }),
+      }).catch(console.error);
+    }
+
     return NextResponse.json(
       { success: true, leadId: lead.id },
       { status: 201 }
