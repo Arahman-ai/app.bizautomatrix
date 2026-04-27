@@ -22,6 +22,9 @@ export default function Navbar() {
             <Link href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">
               Pricing
             </Link>
+            <Link href="/blog" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Blog
+            </Link>
             <Link href="/login" className="text-gray-600 hover:text-blue-600 transition-colors">
               Login
             </Link>
@@ -47,6 +50,7 @@ export default function Navbar() {
           <div className="md:hidden py-4 flex flex-col gap-4 border-t border-gray-100">
             <Link href="#features" className="text-gray-600">Features</Link>
             <Link href="#pricing" className="text-gray-600">Pricing</Link>
+            <Link href="/blog" className="text-gray-600">Blog</Link>
             <Link href="/login" className="text-gray-600">Login</Link>
             <Link href="#audit" className="text-blue-600 font-medium">Free Audit</Link>
           </div>
