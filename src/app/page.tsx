@@ -342,6 +342,7 @@ export default function Home() {
           <div className="flex gap-8 text-sm">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
             <Link href="/login" className="hover:text-white transition-colors">Login</Link>
             <a href="mailto:info@bizautomatrix.com" className="hover:text-white transition-colors">Contact</a>
           </div>
