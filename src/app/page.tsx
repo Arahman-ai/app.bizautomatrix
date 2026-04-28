@@ -263,12 +263,12 @@ export default function Home() {
 
       {/* Pricing */}
       <section id="pricing" className="py-20 px-4 bg-white">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Simple, Transparent Pricing</h2>
             <p className="text-gray-600 text-lg">No contracts. Cancel anytime.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((plan) => (
               <div
                 key={plan.name}
@@ -312,6 +312,40 @@ export default function Home() {
                 </Link>
               </div>
             ))}
+
+            {/* Custom Plan */}
+            <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 flex flex-col">
+              <span className="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full w-fit mb-4">
+                Enterprise
+              </span>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Custom</h3>
+              <div className="mb-6">
+                <span className="text-2xl font-bold text-gray-900">Custom Price</span>
+              </div>
+              <ul className="space-y-2 mb-8 flex-1">
+                {[
+                  "SEO — Organic Search Rankings",
+                  "SEM — Google Search Ads",
+                  "Local Citation Building",
+                  "Competitor Tracking",
+                  "Social Media Management",
+                  "Google Business Profile Full Setup",
+                  "Everything in Pro",
+                  "Dedicated account manager",
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                    <span className="text-blue-500">✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="mailto:info@bizautomatrix.com"
+                className="w-full text-center py-3 rounded-xl font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Contact Us for a Proposal
+              </a>
+            </div>
           </div>
         </div>
       </section>
