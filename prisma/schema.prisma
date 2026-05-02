@@ -109,6 +109,34 @@ enum Plan {
 }
 
 // =====================
+// PROSPECTS (Google Maps scrape)
+// =====================
+
+model Prospect {
+  id           String           @id @default(cuid())
+  placeId      String           @unique
+  businessName String
+  address      String?
+  city         String?
+  phone        String?
+  website      String?
+  rating       Float?
+  reviewCount  Int?
+  category     String?
+  status       ProspectStatus   @default(PENDING)
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+enum ProspectStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CONTACTED
+}
+
+// =====================
 // LEADS
 // =====================
 
