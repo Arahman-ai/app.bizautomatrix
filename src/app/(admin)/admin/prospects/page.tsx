@@ -326,22 +326,37 @@ export default function ProspectsPage() {
                 {selectedCountryIsCustom || citiesForCountry.length === 0 ? (
                   <input
                     type="text"
-                    placeholder={selectedCountryIsCustom ? "Enter country / city..." : "Enter city..."}
+                    placeholder="Enter city..."
                     value={config.city}
                     onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
                     className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <select
-                    value={config.city}
-                    onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
-                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select city...</option>
-                    {citiesForCountry.map((city) => (
-                      <option key={city} value={city}>{city}</option>
-                    ))}
-                  </select>
+                  <>
+                    <select
+                      value={citiesForCountry.includes(config.city) ? config.city : "custom"}
+                      onChange={(e) => {
+                        if (e.target.value !== "custom") setConfig((c) => ({ ...c, city: e.target.value }));
+                        else setConfig((c) => ({ ...c, city: "" }));
+                      }}
+                      className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select city...</option>
+                      {citiesForCountry.map((city) => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                      <option value="custom">Custom...</option>
+                    </select>
+                    {!citiesForCountry.includes(config.city) && (
+                      <input
+                        type="text"
+                        placeholder="Type city name..."
+                        value={config.city}
+                        onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
+                        className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    )}
+                  </>
                 )}
               </div>
 
