@@ -3,8 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-function isAdmin(session: Awaited<ReturnType<typeof getServerSession>>) {
-  return (session?.user as { role?: string })?.role === "ADMIN";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isAdmin(session: any) {
+  return session?.user?.role === "ADMIN";
 }
 
 export async function GET(req: NextRequest) {
