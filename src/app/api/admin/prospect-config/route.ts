@@ -31,7 +31,8 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { city, category, maxReviews } = body as {
+  const { country, city, category, maxReviews } = body as {
+    country?: string;
     city?: string;
     category?: string;
     maxReviews?: number;
@@ -40,12 +41,14 @@ export async function PATCH(req: NextRequest) {
   const config = await prisma.prospectConfig.upsert({
     where: { id: SINGLETON_ID },
     update: {
+      ...(country !== undefined && { country }),
       ...(city !== undefined && { city }),
       ...(category !== undefined && { category }),
       ...(maxReviews !== undefined && { maxReviews: Number(maxReviews) }),
     },
     create: {
       id: SINGLETON_ID,
+      country: country ?? "",
       city: city ?? "",
       category: category ?? "",
       maxReviews: maxReviews !== undefined ? Number(maxReviews) : 20,

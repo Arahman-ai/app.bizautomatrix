@@ -18,10 +18,39 @@ type Prospect = {
 };
 
 type ProspectConfig = {
+  country: string;
   city: string;
   category: string;
   maxReviews: number;
 };
+
+// Country → city data
+const COUNTRY_CITIES: Record<string, string[]> = {
+  "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Atlanta", "Miami", "Dallas", "Seattle", "Boston", "Phoenix"],
+  "United Kingdom": ["London", "Manchester", "Birmingham", "Leeds", "Glasgow", "Liverpool", "Edinburgh"],
+  "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"],
+  "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+  "Bangladesh": ["Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna"],
+  "UAE": ["Dubai", "Abu Dhabi", "Sharjah"],
+  "India": ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata"],
+  "Custom": [],
+};
+
+const COUNTRIES = Object.keys(COUNTRY_CITIES);
+
+const CATEGORIES = [
+  "Restaurant",
+  "Hotel",
+  "Spa & Wellness",
+  "Dentist",
+  "Hair Salon",
+  "Auto Repair",
+  "Gym & Fitness",
+  "Real Estate",
+  "Lawyer",
+  "Plumber",
+  "Custom",
+];
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
@@ -36,13 +65,43 @@ export default function ProspectsPage() {
   const [filter, setFilter] = useState("PENDING");
   const [saving, setSaving] = useState<string | null>(null);
 
+  // Table filters
+  const [minRating, setMinRating] = useState("");
+  const [maxRating, setMaxRating] = useState("");
+  const [minReviews, setMinReviews] = useState("");
+  const [maxReviews, setMaxReviews] = useState("");
+
   // Settings panel state
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [config, setConfig] = useState<ProspectConfig>({ city: "", category: "", maxReviews: 20 });
+  const [config, setConfig] = useState<ProspectConfig>({ country: "", city: "", category: "", maxReviews: 20 });
   const [configLoading, setConfigLoading] = useState(false);
   const [configSaving, setConfigSaving] = useState(false);
   const [savedBanner, setSavedBanner] = useState(false);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Country search filter
+  const [countrySearch, setCountrySearch] = useState("");
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Custom category text
+  const [customCategory, setCustomCategory] = useState("");
+
+  // Run Now state
+  const [running, setRunning] = useState(false);
+  const [runBanner, setRunBanner] = useState<{ ok: boolean; msg: string } | null>(null);
+  const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Close country dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
+        setCountryDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   // Load settings on mount
   useEffect(() => {
@@ -50,25 +109,73 @@ export default function ProspectsPage() {
     fetch("/api/admin/prospect-config")
       .then((r) => r.json())
       .then((d) => {
-        if (d.config) setConfig(d.config);
+        if (d.config) {
+          setConfig(d.config);
+          // If stored category is not in the predefined list, treat as custom
+          if (d.config.category && !CATEGORIES.slice(0, -1).includes(d.config.category)) {
+            setCustomCategory(d.config.category);
+          }
+        }
       })
       .finally(() => setConfigLoading(false));
   }, []);
 
   async function saveConfig() {
+    const finalCategory =
+      config.category === "Custom" ? customCategory : config.category;
     setConfigSaving(true);
     await fetch("/api/admin/prospect-config", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(config),
+      body: JSON.stringify({ ...config, category: finalCategory }),
     });
     setConfigSaving(false);
 
-    // Show "Saved!" banner briefly
     setSavedBanner(true);
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     savedTimerRef.current = setTimeout(() => setSavedBanner(false), 2500);
   }
+
+  async function runNow() {
+    setRunning(true);
+    setRunBanner(null);
+    try {
+      const res = await fetch("http://172.17.0.1:3000/api/admin/prospect-config/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-webhook-secret": "bizautomatrix-n8n-secret-2024",
+        },
+      });
+      if (res.ok) {
+        setRunBanner({ ok: true, msg: "Workflow triggered!" });
+      } else {
+        setRunBanner({ ok: false, msg: `Error ${res.status}` });
+      }
+    } catch {
+      setRunBanner({ ok: false, msg: "Failed to reach server" });
+    } finally {
+      setRunning(false);
+      if (runTimerRef.current) clearTimeout(runTimerRef.current);
+      runTimerRef.current = setTimeout(() => setRunBanner(null), 4000);
+    }
+  }
+
+  // Derived: cities for selected country
+  const selectedCountryIsCustom = config.country === "Custom";
+  const citiesForCountry = config.country ? (COUNTRY_CITIES[config.country] ?? []) : [];
+  const filteredCountries = COUNTRIES.filter((c) =>
+    c.toLowerCase().includes(countrySearch.toLowerCase())
+  );
+
+  // Filtered prospects (client-side)
+  const filteredProspects = prospects.filter((p) => {
+    if (minRating && (p.rating ?? 0) < Number(minRating)) return false;
+    if (maxRating && (p.rating ?? 0) > Number(maxRating)) return false;
+    if (minReviews && (p.reviewCount ?? 0) < Number(minReviews)) return false;
+    if (maxReviews && (p.reviewCount ?? 0) > Number(maxReviews)) return false;
+    return true;
+  });
 
   // Fetch prospects when filter changes
   useEffect(() => {
@@ -119,56 +226,159 @@ export default function ProspectsPage() {
       {/* ── Settings panel ── */}
       {settingsOpen && (
         <div className="mb-6 bg-white rounded-2xl border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-4">
+          {/* Panel header */}
+          <div className="flex items-center justify-between mb-5">
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
               Google Maps Scraper Settings
             </h2>
-            {savedBanner && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Saved!
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {savedBanner && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Saved!
+                </span>
+              )}
+              {runBanner && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${runBanner.ok ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"}`}>
+                  {runBanner.ok ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707a1 1 0 00-1.414-1.414L9 11.172 7.707 9.879a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  {runBanner.msg}
+                </span>
+              )}
+            </div>
           </div>
 
           {configLoading ? (
             <p className="text-sm text-gray-400">Loading settings...</p>
           ) : (
-            <div className="flex flex-wrap gap-4 items-end">
-              {/* City */}
-              <div className="flex flex-col gap-1.5 min-w-[160px]">
-                <label className="text-xs font-medium text-gray-600" htmlFor="cfg-city">
-                  City
-                </label>
-                <input
-                  id="cfg-city"
-                  type="text"
-                  placeholder="e.g. Dhaka"
-                  value={config.city}
-                  onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
-                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+              {/* ── Country (searchable dropdown) ── */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-600">Country</label>
+                <div className="relative" ref={countryDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setCountryDropdownOpen((v) => !v)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left"
+                  >
+                    <span className={config.country ? "text-gray-900" : "text-gray-400"}>
+                      {config.country || "Select country..."}
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={`h-4 w-4 text-gray-400 transition-transform duration-150 ${countryDropdownOpen ? "rotate-180" : ""}`}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {countryDropdownOpen && (
+                    <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                      {/* Search input */}
+                      <div className="p-2 border-b border-gray-100">
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search country..."
+                          value={countrySearch}
+                          onChange={(e) => setCountrySearch(e.target.value)}
+                          className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                      {/* Country list */}
+                      <ul className="max-h-52 overflow-y-auto">
+                        {filteredCountries.length === 0 ? (
+                          <li className="px-3 py-2 text-sm text-gray-400">No results</li>
+                        ) : (
+                          filteredCountries.map((country) => (
+                            <li key={country}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setConfig((c) => ({ ...c, country, city: "" }));
+                                  setCountryDropdownOpen(false);
+                                  setCountrySearch("");
+                                }}
+                                className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors ${config.country === country ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700"}`}
+                              >
+                                {country}
+                              </button>
+                            </li>
+                          ))
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Category */}
-              <div className="flex flex-col gap-1.5 min-w-[200px]">
-                <label className="text-xs font-medium text-gray-600" htmlFor="cfg-category">
-                  Category
-                </label>
-                <input
-                  id="cfg-category"
-                  type="text"
-                  placeholder="e.g. restaurant"
-                  value={config.category}
-                  onChange={(e) => setConfig((c) => ({ ...c, category: e.target.value }))}
-                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+              {/* ── City ── */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-600">City</label>
+                {selectedCountryIsCustom || citiesForCountry.length === 0 ? (
+                  <input
+                    type="text"
+                    placeholder={selectedCountryIsCustom ? "Enter country / city..." : "Enter city..."}
+                    value={config.city}
+                    onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
+                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <select
+                    value={config.city}
+                    onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
+                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select city...</option>
+                    {citiesForCountry.map((city) => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                )}
               </div>
 
-              {/* Max Reviews */}
-              <div className="flex flex-col gap-1.5 w-[140px]">
+              {/* ── Category ── */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-600">Category</label>
+                <select
+                  value={config.category === "Custom" || (config.category && !CATEGORIES.slice(0, -1).includes(config.category)) ? "Custom" : config.category}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setConfig((c) => ({ ...c, category: val }));
+                    if (val !== "Custom") setCustomCategory("");
+                  }}
+                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select category...</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                {/* Custom category text input */}
+                {(config.category === "Custom" || (config.category && !CATEGORIES.slice(0, -1).includes(config.category))) && (
+                  <input
+                    type="text"
+                    placeholder="Type custom category..."
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                )}
+              </div>
+
+              {/* ── Max Reviews ── */}
+              <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-600" htmlFor="cfg-maxreviews">
                   Max Reviews
                 </label>
@@ -183,14 +393,39 @@ export default function ProspectsPage() {
                 />
               </div>
 
-              {/* Save button */}
-              <button
-                onClick={saveConfig}
-                disabled={configSaving}
-                className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                {configSaving ? "Saving..." : "Save Settings"}
-              </button>
+              {/* ── Action buttons (full-width row) ── */}
+              <div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  onClick={saveConfig}
+                  disabled={configSaving}
+                  className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  {configSaving ? "Saving..." : "Save Settings"}
+                </button>
+
+                <button
+                  onClick={runNow}
+                  disabled={running}
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+                >
+                  {running ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                      </svg>
+                      Running...
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                      </svg>
+                      Run Now
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -211,15 +446,52 @@ export default function ProspectsPage() {
         ))}
       </div>
 
+      {/* ── Table filters ── */}
+      <div className="mb-4 flex flex-wrap gap-3 items-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Min Rating</label>
+          <input type="number" min="0" max="5" step="0.1" placeholder="e.g. 3.0" value={minRating}
+            onChange={(e) => setMinRating(e.target.value)}
+            className="w-28 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Max Rating</label>
+          <input type="number" min="0" max="5" step="0.1" placeholder="e.g. 4.5" value={maxRating}
+            onChange={(e) => setMaxRating(e.target.value)}
+            className="w-28 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Min Reviews</label>
+          <input type="number" min="0" placeholder="e.g. 10" value={minReviews}
+            onChange={(e) => setMinReviews(e.target.value)}
+            className="w-28 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Max Reviews</label>
+          <input type="number" min="0" placeholder="e.g. 200" value={maxReviews}
+            onChange={(e) => setMaxReviews(e.target.value)}
+            className="w-28 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        {(minRating || maxRating || minReviews || maxReviews) && (
+          <button onClick={() => { setMinRating(""); setMaxRating(""); setMinReviews(""); setMaxReviews(""); }}
+            className="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+            Clear filters
+          </button>
+        )}
+        {(minRating || maxRating || minReviews || maxReviews) && (
+          <span className="text-xs text-gray-400">{filteredProspects.length} of {prospects.length} shown</span>
+        )}
+      </div>
+
       {/* ── Prospect table ── */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {loading ? (
           <div className="px-6 py-16 text-center text-gray-400">Loading...</div>
-        ) : prospects.length === 0 ? (
+        ) : filteredProspects.length === 0 ? (
           <div className="px-6 py-16 text-center text-gray-400">
             <p className="text-4xl mb-3">🔍</p>
-            <p className="font-medium text-gray-600">No prospects yet</p>
-            <p className="text-sm mt-1">Run the Google Maps workflow in n8n to find prospects.</p>
+            <p className="font-medium text-gray-600">{prospects.length === 0 ? "No prospects yet" : "No prospects match your filters"}</p>
+            <p className="text-sm mt-1">{prospects.length === 0 ? "Run the Google Maps workflow in n8n to find prospects." : "Try adjusting the rating or review filters above."}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -237,7 +509,7 @@ export default function ProspectsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {prospects.map((p) => (
+                {filteredProspects.map((p) => (
                   <tr key={p.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900">{p.businessName}</p>
