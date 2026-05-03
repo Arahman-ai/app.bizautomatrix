@@ -140,12 +140,9 @@ export default function ProspectsPage() {
     setRunning(true);
     setRunBanner(null);
     try {
-      const res = await fetch("http://172.17.0.1:3000/api/admin/prospect-config/run", {
+      const res = await fetch("/api/admin/prospect-config/run", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-webhook-secret": "bizautomatrix-n8n-secret-2024",
-        },
+        headers: { "Content-Type": "application/json" },
       });
       if (res.ok) {
         setRunBanner({ ok: true, msg: "Workflow triggered!" });
