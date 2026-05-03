@@ -137,6 +137,18 @@ enum ProspectStatus {
 }
 
 // =====================
+// PROSPECT CONFIG (n8n scraper settings)
+// =====================
+
+model ProspectConfig {
+  id         String   @id @default("singleton")
+  city       String   @default("")
+  category   String   @default("")
+  maxReviews Int      @default(20)
+  updatedAt  DateTime @updatedAt
+}
+
+// =====================
 // LEADS
 // =====================
 
