@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-function isAdmin(session: ReturnType<typeof getServerSession> extends Promise<infer T> ? T : never) {
-  return (session as { user?: { role?: string } } | null)?.user?.role === "ADMIN";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isAdmin(session: any) {
+  return session?.user?.role === "ADMIN";
 }
 
 export async function POST() {
@@ -12,9 +13,16 @@ export async function POST() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // TODO: integrate with N8N_PROSPECT_WEBHOOK_URL env var when ready
-  // const webhookUrl = process.env.N8N_PROSPECT_WEBHOOK_URL;
-  // if (webhookUrl) { await fetch(webhookUrl, { method: "POST", ... }); }
+  const webhookUrl = process.env.N8N_PROSPECT_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return NextResponse.json({ error: "Webhook URL not configured" }, { status: 500 });
+  }
+
+  const res = await fetch(webhookUrl, { method: "GET" });
+
+  if (!res.ok) {
+    return NextResponse.json({ error: `n8n returned ${res.status}` }, { status: 502 });
+  }
 
   return NextResponse.json({ success: true, message: "Workflow triggered" });
 }
