@@ -9,9 +9,10 @@ function isAdmin(session: ReturnType<typeof getServerSession> extends Promise<in
   return (session as { user?: { role?: string } } | null)?.user?.role === "ADMIN";
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const secret = req.headers.get("x-webhook-secret");
   const session = await getServerSession(authOptions);
-  if (!session || !isAdmin(session)) {
+  if (secret !== process.env.N8N_WEBHOOK_SECRET && (!session || !isAdmin(session))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
