@@ -9,14 +9,21 @@ function isAdmin(session: any) {
 }
 
 export async function GET(req: NextRequest) {
+  const secret = req.headers.get("x-webhook-secret");
   const session = await getServerSession(authOptions);
-  if (!session || !isAdmin(session)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (secret !== process.env.N8N_WEBHOOK_SECRET && (!session || !isAdmin(session))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status") || "PENDING";
+  const noEmail = searchParams.get("noEmail") === "true";
 
   const prospects = await prisma.prospect.findMany({
-    where: status === "ALL" ? {} : { status: status as "PENDING" | "APPROVED" | "REJECTED" | "CONTACTED" },
+    where: {
+      ...(status !== "ALL" && { status: status as "PENDING" | "APPROVED" | "REJECTED" | "CONTACTED" }),
+      ...(noEmail && { website: { not: null }, email: null }),
+    },
     orderBy: { createdAt: "desc" },
   });
 
