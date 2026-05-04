@@ -119,6 +119,7 @@ model Prospect {
   address      String?
   city         String?
   phone        String?
+  email        String?
   website      String?
   rating       Float?
   reviewCount  Int?

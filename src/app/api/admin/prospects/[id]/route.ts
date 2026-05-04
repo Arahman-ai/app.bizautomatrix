@@ -12,13 +12,14 @@ export async function PATCH(
   if (!session || role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
-  const { status, notes } = await req.json();
+  const { status, notes, email } = await req.json();
 
   const updated = await prisma.prospect.update({
     where: { id },
     data: {
       ...(status && { status }),
       ...(notes !== undefined && { notes }),
+      ...(email !== undefined && { email }),
     },
   });
 

@@ -8,6 +8,7 @@ type Prospect = {
   address: string | null;
   city: string | null;
   phone: string | null;
+  email: string | null;
   website: string | null;
   rating: number | null;
   reviewCount: number | null;
@@ -64,6 +65,8 @@ export default function ProspectsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("PENDING");
   const [saving, setSaving] = useState<string | null>(null);
+  const [emailSaved, setEmailSaved] = useState<string | null>(null);
+  const emailSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Table filters
   const [minRating, setMinRating] = useState("");
@@ -189,8 +192,29 @@ export default function ProspectsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    // If approving and the prospect has an email, trigger the outreach webhook
+    if (status === "APPROVED") {
+      const prospect = prospects.find((p) => p.id === id);
+      if (prospect?.email) {
+        await fetch(`/api/admin/prospects/${id}/outreach`, { method: "POST" });
+      }
+    }
     setProspects((prev) => prev.filter((p) => p.id !== id));
     setSaving(null);
+  }
+
+  async function saveEmail(id: string, value: string) {
+    await fetch(`/api/admin/prospects/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: value }),
+    });
+    setProspects((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, email: value } : p))
+    );
+    setEmailSaved(id);
+    if (emailSavedTimerRef.current) clearTimeout(emailSavedTimerRef.current);
+    emailSavedTimerRef.current = setTimeout(() => setEmailSaved(null), 2000);
   }
 
   return (
@@ -516,6 +540,7 @@ export default function ProspectsPage() {
                   <th className="px-6 py-3 text-left">Rating</th>
                   <th className="px-6 py-3 text-left">Reviews</th>
                   <th className="px-6 py-3 text-left">Phone</th>
+                  <th className="px-6 py-3 text-left">Email</th>
                   <th className="px-6 py-3 text-left">Status</th>
                   <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
@@ -540,6 +565,25 @@ export default function ProspectsPage() {
                     </td>
                     <td className="px-6 py-4 text-gray-600">{p.reviewCount ?? "—"}</td>
                     <td className="px-6 py-4 text-gray-600">{p.phone || "—"}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="email"
+                          defaultValue={p.email ?? ""}
+                          onBlur={(e) => {
+                            const val = e.target.value.trim();
+                            if (val !== (p.email ?? "")) {
+                              saveEmail(p.id, val);
+                            }
+                          }}
+                          placeholder="email@example.com"
+                          className="w-44 px-2 py-1 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 text-gray-700 placeholder-gray-300"
+                        />
+                        {emailSaved === p.id && (
+                          <span className="text-green-600 text-xs font-medium">✓</span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[p.status]}`}>
                         {p.status}
