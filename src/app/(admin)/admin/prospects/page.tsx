@@ -15,6 +15,7 @@ type Prospect = {
   category: string | null;
   status: string;
   notes: string | null;
+  emailSentAt: string | null;
   createdAt: string;
 };
 
@@ -784,6 +785,7 @@ export default function ProspectsPage() {
                   <th className="px-6 py-3 text-left">Phone</th>
                   <th className="px-6 py-3 text-left">Email</th>
                   <th className="px-6 py-3 text-left">Status</th>
+                  <th className="px-6 py-3 text-left">Email Sent</th>
                   <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
               </thead>
@@ -822,6 +824,9 @@ export default function ProspectsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[p.status]}`}>{p.status}</span>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-500">
+                      {p.emailSentAt ? new Date(p.emailSentAt).toLocaleString() : "—"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">

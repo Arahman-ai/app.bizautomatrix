@@ -126,6 +126,7 @@ model Prospect {
   category     String?
   status       ProspectStatus   @default(PENDING)
   notes        String?
+  emailSentAt  DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 }

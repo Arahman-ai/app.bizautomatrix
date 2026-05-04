@@ -44,5 +44,10 @@ export async function POST(
     }),
   });
 
+  await prisma.prospect.update({
+    where: { id },
+    data: { emailSentAt: new Date() },
+  });
+
   return NextResponse.json({ success: true });
 }
