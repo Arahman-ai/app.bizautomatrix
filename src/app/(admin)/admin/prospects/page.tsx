@@ -848,6 +848,18 @@ export default function ProspectsPage() {
                             Mark Contacted
                           </button>
                         )}
+                        {p.status === "CONTACTED" && p.email && (
+                          <button disabled={saving === p.id} onClick={async () => {
+                            setSaving(p.id);
+                            const res = await fetch(`/api/admin/prospects/${p.id}/convert`, { method: "POST" });
+                            setSaving(null);
+                            if (res.ok) alert("Converted to Lead successfully!");
+                            else { const d = await res.json(); alert(d.error ?? "Failed to convert"); }
+                          }}
+                            className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700 disabled:opacity-50">
+                            → Lead
+                          </button>
+                        )}
                         {(p.status === "APPROVED" || p.status === "CONTACTED") && p.email && (
                           <button disabled={saving === p.id} onClick={async () => {
                             setSaving(p.id);
