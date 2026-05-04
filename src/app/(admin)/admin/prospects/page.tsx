@@ -242,6 +242,11 @@ export default function ProspectsPage() {
           const prospect = prospects.find((p) => p.id === id);
           if (prospect?.email) {
             await fetch(`/api/admin/prospects/${id}/outreach`, { method: "POST" });
+            await fetch(`/api/admin/prospects/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: "CONTACTED" }),
+            });
           }
         }
       })
@@ -262,6 +267,11 @@ export default function ProspectsPage() {
       const prospect = prospects.find((p) => p.id === id);
       if (prospect?.email) {
         await fetch(`/api/admin/prospects/${id}/outreach`, { method: "POST" });
+        await fetch(`/api/admin/prospects/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "CONTACTED" }),
+        });
       }
     }
     setProspects((prev) => prev.filter((p) => p.id !== id));
