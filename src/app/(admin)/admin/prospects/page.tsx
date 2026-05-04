@@ -822,6 +822,16 @@ export default function ProspectsPage() {
                             Mark Contacted
                           </button>
                         )}
+                        {(p.status === "APPROVED" || p.status === "CONTACTED") && p.email && (
+                          <button disabled={saving === p.id} onClick={async () => {
+                            setSaving(p.id);
+                            await fetch(`/api/admin/prospects/${p.id}/outreach`, { method: "POST" });
+                            setSaving(null);
+                          }}
+                            className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200 disabled:opacity-50">
+                            Send Again
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
