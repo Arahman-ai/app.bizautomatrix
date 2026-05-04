@@ -105,6 +105,7 @@ export default function ProspectsPage() {
 
   // CSV export/import
   const [importing, setImporting] = useState(false);
+  const [importBanner, setImportBanner] = useState<{ ok: boolean; msg: string } | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
   // Add prospect modal
@@ -296,38 +297,73 @@ export default function ProspectsPage() {
     URL.revokeObjectURL(url);
   }
 
+  function parseCSVLine(line: string): string[] {
+    const result: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (ch === "," && !inQuotes) {
+        result.push(current); current = "";
+      } else {
+        current += ch;
+      }
+    }
+    result.push(current);
+    return result;
+  }
+
   async function importCSV(file: File) {
     setImporting(true);
-    const text = await file.text();
-    const lines = text.trim().split("\n");
-    const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
-    const parsed = lines.slice(1).map((line) => {
-      const vals = line.match(/("(?:[^"]|"")*"|[^,]*)/g)?.map((v) => v.replace(/^"|"$/g, "").replace(/""/g, '"')) ?? [];
-      return Object.fromEntries(headers.map((h, i) => [h, vals[i] ?? ""]));
-    });
-    const prospects = parsed
-      .filter((r) => r.placeId && r.businessName)
-      .map((r) => ({
-        placeId: r.placeId,
-        businessName: r.businessName,
-        city: r.city || null,
-        category: r.category || null,
-        phone: r.phone || null,
-        email: r.email || null,
-        website: r.website || null,
-        address: r.address || null,
-        rating: r.rating ? Number(r.rating) : null,
-        reviewCount: r.reviewCount ? Number(r.reviewCount) : null,
-      }));
-    await fetch("/api/admin/prospects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prospects }),
-    });
-    setImporting(false);
-    const res = await fetch(`/api/admin/prospects?status=${filter}`);
-    const d = await res.json();
-    setProspects(d.prospects);
+    setImportBanner(null);
+    try {
+      const text = await file.text();
+      const lines = text.trim().split(/\r?\n/).filter((l) => l.trim());
+      const headers = parseCSVLine(lines[0]);
+      const parsed = lines.slice(1).map((line) => {
+        const vals = parseCSVLine(line);
+        return Object.fromEntries(headers.map((h, i) => [h.trim(), (vals[i] ?? "").trim()]));
+      });
+      const toImport = parsed
+        .filter((r) => r.placeId && r.businessName)
+        .map((r) => ({
+          placeId: r.placeId,
+          businessName: r.businessName,
+          city: r.city || null,
+          category: r.category || null,
+          phone: r.phone || null,
+          email: r.email || null,
+          website: r.website || null,
+          address: r.address || null,
+          rating: r.rating ? Number(r.rating) : null,
+          reviewCount: r.reviewCount ? Number(r.reviewCount) : null,
+        }));
+      if (toImport.length === 0) {
+        setImportBanner({ ok: false, msg: "No valid rows found. Make sure the CSV has placeId and businessName columns." });
+        return;
+      }
+      const res = await fetch("/api/admin/prospects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prospects: toImport }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setImportBanner({ ok: true, msg: `Imported ${toImport.length} rows successfully.` });
+        const d = await (await fetch(`/api/admin/prospects?status=${filter}`)).json();
+        setProspects(d.prospects);
+      } else {
+        setImportBanner({ ok: false, msg: data.error ?? "Import failed." });
+      }
+    } catch {
+      setImportBanner({ ok: false, msg: "Failed to parse CSV file." });
+    } finally {
+      setImporting(false);
+      setTimeout(() => setImportBanner(null), 5000);
+    }
   }
 
   async function addProspect() {
@@ -397,6 +433,11 @@ export default function ProspectsPage() {
           </svg>
           Add Prospect
         </button>
+        {importBanner && (
+          <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${importBanner.ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+            {importBanner.msg}
+          </span>
+        )}
         <button
           onClick={() => setSettingsOpen((v) => !v)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
