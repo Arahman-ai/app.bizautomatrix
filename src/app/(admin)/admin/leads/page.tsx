@@ -34,6 +34,7 @@ export default function LeadsPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [editNotes, setEditNotes] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState("");
+  const [converting, setConverting] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -69,6 +70,20 @@ export default function LeadsPage() {
     if (!confirm("Delete this lead?")) return;
     await fetch(`/api/admin/leads/${id}`, { method: "DELETE" });
     setLeads((prev) => prev.filter((l) => l.id !== id));
+  }
+
+  async function convertToClient(id: string) {
+    if (!confirm("Create a client account for this lead? A welcome email will be sent.")) return;
+    setConverting(id);
+    const res = await fetch(`/api/admin/leads/${id}/convert`, { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error ?? "Conversion failed");
+    } else {
+      alert(`Client account created!\n\nTemp password: ${data.tempPassword}\n\n(The client has been emailed their welcome message.)`);
+      setLeads((prev) => prev.map((l) => l.id === id ? { ...l, status: "CONVERTED" } : l));
+    }
+    setConverting(null);
   }
 
   const filtered = filter === "ALL" ? leads : leads.filter((l) => l.status === filter);
@@ -163,12 +178,23 @@ export default function LeadsPage() {
                       {new Date(lead.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      <button onClick={() => deleteLead(lead.id)}
-                        className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1 rounded transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                      <div className="flex items-center gap-1">
+                        {lead.status !== "CONVERTED" && (
+                          <button
+                            onClick={() => convertToClient(lead.id)}
+                            disabled={converting === lead.id}
+                            title="Convert to Client"
+                            className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100 font-medium transition-colors disabled:opacity-50">
+                            {converting === lead.id ? "..." : "→ Client"}
+                          </button>
+                        )}
+                        <button onClick={() => deleteLead(lead.id)}
+                          className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1 rounded transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
