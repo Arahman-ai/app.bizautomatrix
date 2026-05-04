@@ -50,7 +50,13 @@ export async function POST(req: NextRequest) {
     try {
       await prisma.prospect.upsert({
         where: { placeId: p.placeId },
-        update: { rating: p.rating, reviewCount: p.reviewCount },
+        update: {
+          rating: p.rating,
+          reviewCount: p.reviewCount,
+          ...(p.email !== undefined && p.email !== null && p.email !== "" && { email: p.email }),
+          ...(p.phone !== undefined && p.phone !== null && p.phone !== "" && { phone: p.phone }),
+          ...(p.website !== undefined && p.website !== null && p.website !== "" && { website: p.website }),
+        },
         create: {
           placeId: p.placeId,
           businessName: p.businessName,
@@ -58,6 +64,7 @@ export async function POST(req: NextRequest) {
           city: p.city,
           phone: p.phone,
           website: p.website,
+          email: p.email,
           rating: p.rating,
           reviewCount: p.reviewCount,
           category: p.category,

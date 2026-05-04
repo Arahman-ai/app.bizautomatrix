@@ -103,6 +103,10 @@ export default function ProspectsPage() {
   const [findEmailsBanner, setFindEmailsBanner] = useState<{ ok: boolean; msg: string } | null>(null);
   const findEmailsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // CSV export/import
+  const [importing, setImporting] = useState(false);
+  const importRef = useRef<HTMLInputElement>(null);
+
   // Add prospect modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({ businessName: "", city: "", category: "", phone: "", email: "", website: "", address: "", rating: "", reviewCount: "" });
@@ -275,6 +279,57 @@ export default function ProspectsPage() {
     emailSavedTimerRef.current = setTimeout(() => setEmailSaved(null), 2000);
   }
 
+  function exportCSV() {
+    const all = prospects;
+    const headers = ["placeId","businessName","city","category","phone","email","website","address","rating","reviewCount","status"];
+    const rows = all.map((p) => headers.map((h) => {
+      const val = (p as Record<string, unknown>)[h] ?? "";
+      return `"${String(val).replace(/"/g, '""')}"`;
+    }).join(","));
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `prospects_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importCSV(file: File) {
+    setImporting(true);
+    const text = await file.text();
+    const lines = text.trim().split("\n");
+    const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+    const parsed = lines.slice(1).map((line) => {
+      const vals = line.match(/("(?:[^"]|"")*"|[^,]*)/g)?.map((v) => v.replace(/^"|"$/g, "").replace(/""/g, '"')) ?? [];
+      return Object.fromEntries(headers.map((h, i) => [h, vals[i] ?? ""]));
+    });
+    const prospects = parsed
+      .filter((r) => r.placeId && r.businessName)
+      .map((r) => ({
+        placeId: r.placeId,
+        businessName: r.businessName,
+        city: r.city || null,
+        category: r.category || null,
+        phone: r.phone || null,
+        email: r.email || null,
+        website: r.website || null,
+        address: r.address || null,
+        rating: r.rating ? Number(r.rating) : null,
+        reviewCount: r.reviewCount ? Number(r.reviewCount) : null,
+      }));
+    await fetch("/api/admin/prospects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prospects }),
+    });
+    setImporting(false);
+    const res = await fetch(`/api/admin/prospects?status=${filter}`);
+    const d = await res.json();
+    setProspects(d.prospects);
+  }
+
   async function addProspect() {
     if (!addForm.businessName.trim()) return;
     setAddSaving(true);
@@ -317,6 +372,22 @@ export default function ProspectsPage() {
           <p className="text-gray-500 mt-1">Businesses found via Google Maps with low reviews</p>
         </div>
         <div className="flex items-center gap-2">
+        <button onClick={exportCSV}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export CSV
+        </button>
+        <input ref={importRef} type="file" accept=".csv" className="hidden"
+          onChange={(e) => { if (e.target.files?.[0]) { importCSV(e.target.files[0]); e.target.value = ""; } }} />
+        <button onClick={() => importRef.current?.click()} disabled={importing}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12" />
+          </svg>
+          {importing ? "Importing..." : "Import CSV"}
+        </button>
         <button
           onClick={() => setAddModalOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
