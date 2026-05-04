@@ -103,6 +103,11 @@ export default function ProspectsPage() {
   const [findEmailsBanner, setFindEmailsBanner] = useState<{ ok: boolean; msg: string } | null>(null);
   const findEmailsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Add prospect modal
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ businessName: "", city: "", category: "", phone: "", email: "", website: "", address: "", rating: "", reviewCount: "" });
+  const [addSaving, setAddSaving] = useState(false);
+
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
@@ -270,6 +275,37 @@ export default function ProspectsPage() {
     emailSavedTimerRef.current = setTimeout(() => setEmailSaved(null), 2000);
   }
 
+  async function addProspect() {
+    if (!addForm.businessName.trim()) return;
+    setAddSaving(true);
+    const placeId = `manual_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    await fetch("/api/admin/prospects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prospects: [{
+          placeId,
+          businessName: addForm.businessName.trim(),
+          city: addForm.city.trim() || null,
+          category: addForm.category.trim() || null,
+          phone: addForm.phone.trim() || null,
+          email: addForm.email.trim() || null,
+          website: addForm.website.trim() || null,
+          address: addForm.address.trim() || null,
+          rating: addForm.rating ? Number(addForm.rating) : null,
+          reviewCount: addForm.reviewCount ? Number(addForm.reviewCount) : null,
+        }],
+      }),
+    });
+    setAddSaving(false);
+    setAddModalOpen(false);
+    setAddForm({ businessName: "", city: "", category: "", phone: "", email: "", website: "", address: "", rating: "", reviewCount: "" });
+    setFilter("PENDING");
+    const res = await fetch("/api/admin/prospects?status=PENDING");
+    const d = await res.json();
+    setProspects(d.prospects);
+  }
+
   const hasFilters = !!(minRating || maxRating || minReviews || maxReviews || filterCity || filterCategory);
 
   return (
@@ -280,6 +316,16 @@ export default function ProspectsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Prospects</h1>
           <p className="text-gray-500 mt-1">Businesses found via Google Maps with low reviews</p>
         </div>
+        <div className="flex items-center gap-2">
+        <button
+          onClick={() => setAddModalOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Prospect
+        </button>
         <button
           onClick={() => setSettingsOpen((v) => !v)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
@@ -293,6 +339,7 @@ export default function ProspectsPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
+        </div>
       </div>
 
       {/* ── Settings panel ── */}
@@ -672,6 +719,78 @@ export default function ProspectsPage() {
           </div>
         )}
       </div>
+
+      {/* ── Add Prospect Modal ── */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-semibold text-gray-900">Add Prospect Manually</h2>
+              <button onClick={() => setAddModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="text-xs font-medium text-gray-600">Business Name <span className="text-red-500">*</span></label>
+                <input type="text" value={addForm.businessName} onChange={(e) => setAddForm((f) => ({ ...f, businessName: e.target.value }))}
+                  placeholder="e.g. Joe's Pizza" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs font-medium text-gray-600">Website</label>
+                <input type="url" value={addForm.website} onChange={(e) => setAddForm((f) => ({ ...f, website: e.target.value }))}
+                  placeholder="https://example.com" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Email</label>
+                <input type="email" value={addForm.email} onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="info@example.com" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Phone</label>
+                <input type="text" value={addForm.phone} onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="(555) 000-0000" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">City</label>
+                <input type="text" value={addForm.city} onChange={(e) => setAddForm((f) => ({ ...f, city: e.target.value }))}
+                  placeholder="Atlanta" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Category</label>
+                <input type="text" value={addForm.category} onChange={(e) => setAddForm((f) => ({ ...f, category: e.target.value }))}
+                  placeholder="e.g. Restaurant" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Rating</label>
+                <input type="number" min="0" max="5" step="0.1" value={addForm.rating} onChange={(e) => setAddForm((f) => ({ ...f, rating: e.target.value }))}
+                  placeholder="4.2" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600">Review Count</label>
+                <input type="number" min="0" value={addForm.reviewCount} onChange={(e) => setAddForm((f) => ({ ...f, reviewCount: e.target.value }))}
+                  placeholder="12" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs font-medium text-gray-600">Address</label>
+                <input type="text" value={addForm.address} onChange={(e) => setAddForm((f) => ({ ...f, address: e.target.value }))}
+                  placeholder="123 Main St" className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setAddModalOpen(false)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+              <button onClick={addProspect} disabled={addSaving || !addForm.businessName.trim()}
+                className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                {addSaving ? "Adding..." : "Add Prospect"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
