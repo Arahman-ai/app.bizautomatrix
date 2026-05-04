@@ -20,14 +20,31 @@ export async function POST(
 
   const { id } = await params;
 
-  const prospect = await prisma.prospect.findUnique({ where: { id } });
-  if (!prospect) {
-    return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
+  const [prospect, template] = await Promise.all([
+    prisma.prospect.findUnique({ where: { id } }),
+    prisma.emailTemplate.findUnique({ where: { id: "singleton" } }),
+  ]);
+
+  if (!prospect) return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
+  if (!prospect.email) return NextResponse.json({ error: "No email" }, { status: 400 });
+
+  const vars: Record<string, string> = {
+    businessName: prospect.businessName,
+    city: prospect.city ?? "",
+    category: prospect.category ?? "",
+    rating: prospect.rating?.toString() ?? "",
+    reviewCount: prospect.reviewCount?.toString() ?? "",
+    website: prospect.website ?? "",
+    phone: prospect.phone ?? "",
+    email: prospect.email,
+  };
+
+  function render(text: string) {
+    return text.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? "");
   }
 
-  if (!prospect.email) {
-    return NextResponse.json({ error: "No email" }, { status: 400 });
-  }
+  const subject = render(template?.subject ?? "Grow Your Business with More 5-Star Reviews");
+  const htmlBody = render(template?.body ?? "");
 
   await fetch(webhookUrl, {
     method: "POST",
@@ -35,12 +52,8 @@ export async function POST(
     body: JSON.stringify({
       businessName: prospect.businessName,
       email: prospect.email,
-      phone: prospect.phone,
-      website: prospect.website,
-      city: prospect.city,
-      category: prospect.category,
-      rating: prospect.rating,
-      reviewCount: prospect.reviewCount,
+      subject,
+      htmlBody,
     }),
   });
 

@@ -153,6 +153,17 @@ model ProspectConfig {
 }
 
 // =====================
+// EMAIL TEMPLATE
+// =====================
+
+model EmailTemplate {
+  id        String   @id @default("singleton")
+  subject   String   @default("Grow Your Business with More 5-Star Reviews")
+  body      String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+// =====================
 // LEADS
 // =====================
 
