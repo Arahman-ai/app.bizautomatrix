@@ -99,6 +99,10 @@ export default function ProspectsPage() {
   const [runBanner, setRunBanner] = useState<{ ok: boolean; msg: string } | null>(null);
   const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [findingEmails, setFindingEmails] = useState(false);
+  const [findEmailsBanner, setFindEmailsBanner] = useState<{ ok: boolean; msg: string } | null>(null);
+  const findEmailsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
@@ -150,6 +154,21 @@ export default function ProspectsPage() {
       setRunning(false);
       if (runTimerRef.current) clearTimeout(runTimerRef.current);
       runTimerRef.current = setTimeout(() => setRunBanner(null), 4000);
+    }
+  }
+
+  async function findEmails() {
+    setFindingEmails(true);
+    setFindEmailsBanner(null);
+    try {
+      const res = await fetch("/api/admin/prospect-config/find-emails", { method: "POST" });
+      setFindEmailsBanner(res.ok ? { ok: true, msg: "Email finder running! Check back in a few minutes." } : { ok: false, msg: `Error ${res.status}` });
+    } catch {
+      setFindEmailsBanner({ ok: false, msg: "Failed to reach server" });
+    } finally {
+      setFindingEmails(false);
+      if (findEmailsTimerRef.current) clearTimeout(findEmailsTimerRef.current);
+      findEmailsTimerRef.current = setTimeout(() => setFindEmailsBanner(null), 6000);
     }
   }
 
@@ -443,6 +462,19 @@ export default function ProspectsPage() {
                     <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>Run Now</>
                   )}
                 </button>
+                <button onClick={findEmails} disabled={findingEmails}
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 transition-colors">
+                  {findingEmails ? (
+                    <><svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" /></svg>Finding...</>
+                  ) : (
+                    <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>Find Emails (AI)</>
+                  )}
+                </button>
+                {findEmailsBanner && (
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${findEmailsBanner.ok ? "bg-purple-100 text-purple-700" : "bg-red-100 text-red-700"}`}>
+                    {findEmailsBanner.msg}
+                  </span>
+                )}
               </div>
             </div>
           )}
