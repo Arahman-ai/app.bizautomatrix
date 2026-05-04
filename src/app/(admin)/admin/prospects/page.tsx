@@ -25,7 +25,6 @@ type ProspectConfig = {
   maxReviews: number;
 };
 
-// Country → city data
 const COUNTRY_CITIES: Record<string, string[]> = {
   "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Atlanta", "Miami", "Dallas", "Seattle", "Boston", "Phoenix"],
   "United Kingdom": ["London", "Manchester", "Birmingham", "Leeds", "Glasgow", "Liverpool", "Edinburgh"],
@@ -40,17 +39,8 @@ const COUNTRY_CITIES: Record<string, string[]> = {
 const COUNTRIES = Object.keys(COUNTRY_CITIES);
 
 const CATEGORIES = [
-  "Restaurant",
-  "Hotel",
-  "Spa & Wellness",
-  "Dentist",
-  "Hair Salon",
-  "Auto Repair",
-  "Gym & Fitness",
-  "Real Estate",
-  "Lawyer",
-  "Plumber",
-  "Custom",
+  "Restaurant", "Hotel", "Spa & Wellness", "Dentist", "Hair Salon",
+  "Auto Repair", "Gym & Fitness", "Real Estate", "Lawyer", "Plumber", "Custom",
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -73,6 +63,12 @@ export default function ProspectsPage() {
   const [maxRating, setMaxRating] = useState("");
   const [minReviews, setMinReviews] = useState("");
   const [maxReviews, setMaxReviews] = useState("");
+  const [filterCity, setFilterCity] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   // Settings panel state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -82,20 +78,15 @@ export default function ProspectsPage() {
   const [savedBanner, setSavedBanner] = useState(false);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Country search filter
   const [countrySearch, setCountrySearch] = useState("");
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
   const countryDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Custom category text
   const [customCategory, setCustomCategory] = useState("");
 
-  // Run Now state
   const [running, setRunning] = useState(false);
   const [runBanner, setRunBanner] = useState<{ ok: boolean; msg: string } | null>(null);
   const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Close country dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
@@ -106,7 +97,6 @@ export default function ProspectsPage() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Load settings on mount
   useEffect(() => {
     setConfigLoading(true);
     fetch("/api/admin/prospect-config")
@@ -114,7 +104,6 @@ export default function ProspectsPage() {
       .then((d) => {
         if (d.config) {
           setConfig(d.config);
-          // If stored category is not in the predefined list, treat as custom
           if (d.config.category && !CATEGORIES.slice(0, -1).includes(d.config.category)) {
             setCustomCategory(d.config.category);
           }
@@ -124,8 +113,7 @@ export default function ProspectsPage() {
   }, []);
 
   async function saveConfig() {
-    const finalCategory =
-      config.category === "Custom" ? customCategory : config.category;
+    const finalCategory = config.category === "Custom" ? customCategory : config.category;
     setConfigSaving(true);
     await fetch("/api/admin/prospect-config", {
       method: "PATCH",
@@ -133,7 +121,6 @@ export default function ProspectsPage() {
       body: JSON.stringify({ ...config, category: finalCategory }),
     });
     setConfigSaving(false);
-
     setSavedBanner(true);
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     savedTimerRef.current = setTimeout(() => setSavedBanner(false), 2500);
@@ -143,15 +130,8 @@ export default function ProspectsPage() {
     setRunning(true);
     setRunBanner(null);
     try {
-      const res = await fetch("/api/admin/prospect-config/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.ok) {
-        setRunBanner({ ok: true, msg: "Workflow triggered!" });
-      } else {
-        setRunBanner({ ok: false, msg: `Error ${res.status}` });
-      }
+      const res = await fetch("/api/admin/prospect-config/run", { method: "POST", headers: { "Content-Type": "application/json" } });
+      setRunBanner(res.ok ? { ok: true, msg: "Workflow triggered!" } : { ok: false, msg: `Error ${res.status}` });
     } catch {
       setRunBanner({ ok: false, msg: "Failed to reach server" });
     } finally {
@@ -161,29 +141,74 @@ export default function ProspectsPage() {
     }
   }
 
-  // Derived: cities for selected country
   const selectedCountryIsCustom = config.country === "Custom";
   const citiesForCountry = config.country ? (COUNTRY_CITIES[config.country] ?? []) : [];
-  const filteredCountries = COUNTRIES.filter((c) =>
-    c.toLowerCase().includes(countrySearch.toLowerCase())
-  );
+  const filteredCountries = COUNTRIES.filter((c) => c.toLowerCase().includes(countrySearch.toLowerCase()));
 
-  // Filtered prospects (client-side)
+  // Unique cities/categories from loaded prospects for filter dropdowns
+  const uniqueCities = [...new Set(prospects.map(p => p.city).filter(Boolean))] as string[];
+  const uniqueCategories = [...new Set(prospects.map(p => p.category).filter(Boolean))] as string[];
+
   const filteredProspects = prospects.filter((p) => {
     if (minRating && (p.rating ?? 0) < Number(minRating)) return false;
     if (maxRating && (p.rating ?? 0) > Number(maxRating)) return false;
     if (minReviews && (p.reviewCount ?? 0) < Number(minReviews)) return false;
     if (maxReviews && (p.reviewCount ?? 0) > Number(maxReviews)) return false;
+    if (filterCity && p.city !== filterCity) return false;
+    if (filterCategory && p.category !== filterCategory) return false;
     return true;
   });
 
-  // Fetch prospects when filter changes
   useEffect(() => {
     setLoading(true);
+    setSelectedIds(new Set());
     fetch(`/api/admin/prospects?status=${filter}`)
       .then((r) => r.json())
       .then((d) => { setProspects(d.prospects); setLoading(false); });
   }, [filter]);
+
+  // Reset selection when filters change
+  useEffect(() => { setSelectedIds(new Set()); }, [minRating, maxRating, minReviews, maxReviews, filterCity, filterCategory]);
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selectedIds.size === filteredProspects.length && filteredProspects.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredProspects.map((p) => p.id)));
+    }
+  }
+
+  async function bulkUpdateStatus(status: string) {
+    setBulkSaving(true);
+    const ids = [...selectedIds];
+    await Promise.all(
+      ids.map(async (id) => {
+        await fetch(`/api/admin/prospects/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        if (status === "APPROVED") {
+          const prospect = prospects.find((p) => p.id === id);
+          if (prospect?.email) {
+            await fetch(`/api/admin/prospects/${id}/outreach`, { method: "POST" });
+          }
+        }
+      })
+    );
+    setProspects((prev) => prev.filter((p) => !selectedIds.has(p.id)));
+    setSelectedIds(new Set());
+    setBulkSaving(false);
+  }
 
   async function updateStatus(id: string, status: string) {
     setSaving(id);
@@ -192,7 +217,6 @@ export default function ProspectsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
-    // If approving and the prospect has an email, trigger the outreach webhook
     if (status === "APPROVED") {
       const prospect = prospects.find((p) => p.id === id);
       if (prospect?.email) {
@@ -209,13 +233,13 @@ export default function ProspectsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: value }),
     });
-    setProspects((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, email: value } : p))
-    );
+    setProspects((prev) => prev.map((p) => (p.id === id ? { ...p, email: value } : p)));
     setEmailSaved(id);
     if (emailSavedTimerRef.current) clearTimeout(emailSavedTimerRef.current);
     emailSavedTimerRef.current = setTimeout(() => setEmailSaved(null), 2000);
   }
+
+  const hasFilters = !!(minRating || maxRating || minReviews || maxReviews || filterCity || filterCategory);
 
   return (
     <div>
@@ -234,11 +258,7 @@ export default function ProspectsPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           Scraper Settings
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className={`h-3 w-3 transition-transform duration-200 ${settingsOpen ? "rotate-180" : ""}`}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 transition-transform duration-200 ${settingsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
@@ -247,11 +267,11 @@ export default function ProspectsPage() {
       {/* ── Settings panel ── */}
       {settingsOpen && (
         <div className="mb-6 bg-white rounded-2xl border border-gray-200 p-5">
-          {/* Panel header */}
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Google Maps Scraper Settings
-            </h2>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Google Maps Scraper Settings</h2>
+              <p className="text-xs text-gray-400 mt-0.5">All fields are optional — leave blank to scrape without filter</p>
+            </div>
             <div className="flex items-center gap-3">
               {savedBanner && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
@@ -282,57 +302,39 @@ export default function ProspectsPage() {
             <p className="text-sm text-gray-400">Loading settings...</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-
-              {/* ── Country (searchable dropdown) ── */}
+              {/* Country */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-600">Country</label>
+                <label className="text-xs font-medium text-gray-600">Country <span className="text-gray-400 font-normal">(optional)</span></label>
                 <div className="relative" ref={countryDropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setCountryDropdownOpen((v) => !v)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left"
-                  >
-                    <span className={config.country ? "text-gray-900" : "text-gray-400"}>
-                      {config.country || "Select country..."}
-                    </span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={`h-4 w-4 text-gray-400 transition-transform duration-150 ${countryDropdownOpen ? "rotate-180" : ""}`}
-                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                    >
+                  <button type="button" onClick={() => setCountryDropdownOpen((v) => !v)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left">
+                    <span className={config.country ? "text-gray-900" : "text-gray-400"}>{config.country || "Select country..."}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-400 transition-transform duration-150 ${countryDropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-
                   {countryDropdownOpen && (
                     <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                      {/* Search input */}
                       <div className="p-2 border-b border-gray-100">
-                        <input
-                          autoFocus
-                          type="text"
-                          placeholder="Search country..."
-                          value={countrySearch}
+                        <input autoFocus type="text" placeholder="Search country..." value={countrySearch}
                           onChange={(e) => setCountrySearch(e.target.value)}
-                          className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
+                          className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                       </div>
-                      {/* Country list */}
                       <ul className="max-h-52 overflow-y-auto">
+                        <li>
+                          <button type="button" onClick={() => { setConfig((c) => ({ ...c, country: "", city: "" })); setCountryDropdownOpen(false); setCountrySearch(""); }}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors ${!config.country ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-400"}`}>
+                            Any country
+                          </button>
+                        </li>
                         {filteredCountries.length === 0 ? (
                           <li className="px-3 py-2 text-sm text-gray-400">No results</li>
                         ) : (
                           filteredCountries.map((country) => (
                             <li key={country}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setConfig((c) => ({ ...c, country, city: "" }));
-                                  setCountryDropdownOpen(false);
-                                  setCountrySearch("");
-                                }}
-                                className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors ${config.country === country ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700"}`}
-                              >
+                              <button type="button"
+                                onClick={() => { setConfig((c) => ({ ...c, country, city: "" })); setCountryDropdownOpen(false); setCountrySearch(""); }}
+                                className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors ${config.country === country ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700"}`}>
                                 {country}
                               </button>
                             </li>
@@ -344,121 +346,71 @@ export default function ProspectsPage() {
                 </div>
               </div>
 
-              {/* ── City ── */}
+              {/* City */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-600">City</label>
+                <label className="text-xs font-medium text-gray-600">City <span className="text-gray-400 font-normal">(optional)</span></label>
                 {selectedCountryIsCustom || citiesForCountry.length === 0 ? (
-                  <input
-                    type="text"
-                    placeholder="Enter city..."
-                    value={config.city}
+                  <input type="text" placeholder="Any city..." value={config.city}
                     onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
-                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                 ) : (
                   <>
-                    <select
-                      value={citiesForCountry.includes(config.city) ? config.city : "custom"}
+                    <select value={citiesForCountry.includes(config.city) ? config.city : config.city ? "custom" : ""}
                       onChange={(e) => {
                         if (e.target.value !== "custom") setConfig((c) => ({ ...c, city: e.target.value }));
                         else setConfig((c) => ({ ...c, city: "" }));
                       }}
-                      className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Select city...</option>
-                      {citiesForCountry.map((city) => (
-                        <option key={city} value={city}>{city}</option>
-                      ))}
+                      className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">Any city...</option>
+                      {citiesForCountry.map((city) => (<option key={city} value={city}>{city}</option>))}
                       <option value="custom">Custom...</option>
                     </select>
-                    {!citiesForCountry.includes(config.city) && (
-                      <input
-                        type="text"
-                        placeholder="Type city name..."
-                        value={config.city}
+                    {!citiesForCountry.includes(config.city) && config.city && (
+                      <input type="text" placeholder="Type city name..." value={config.city}
                         onChange={(e) => setConfig((c) => ({ ...c, city: e.target.value }))}
-                        className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
+                        className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     )}
                   </>
                 )}
               </div>
 
-              {/* ── Category ── */}
+              {/* Category */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-600">Category</label>
+                <label className="text-xs font-medium text-gray-600">Category <span className="text-gray-400 font-normal">(optional)</span></label>
                 <select
                   value={config.category === "Custom" || (config.category && !CATEGORIES.slice(0, -1).includes(config.category)) ? "Custom" : config.category}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setConfig((c) => ({ ...c, category: val }));
-                    if (val !== "Custom") setCustomCategory("");
-                  }}
-                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select category...</option>
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
+                  onChange={(e) => { const val = e.target.value; setConfig((c) => ({ ...c, category: val })); if (val !== "Custom") setCustomCategory(""); }}
+                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Any category...</option>
+                  {CATEGORIES.map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
                 </select>
-                {/* Custom category text input */}
                 {(config.category === "Custom" || (config.category && !CATEGORIES.slice(0, -1).includes(config.category))) && (
-                  <input
-                    type="text"
-                    placeholder="Type custom category..."
-                    value={customCategory}
+                  <input type="text" placeholder="Type custom category..." value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
-                    className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                    className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                 )}
               </div>
 
-              {/* ── Max Reviews ── */}
+              {/* Max Reviews */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-600" htmlFor="cfg-maxreviews">
-                  Max Reviews
-                </label>
-                <input
-                  id="cfg-maxreviews"
-                  type="number"
-                  min={0}
-                  max={1000}
-                  value={config.maxReviews}
+                <label className="text-xs font-medium text-gray-600" htmlFor="cfg-maxreviews">Max Reviews</label>
+                <input id="cfg-maxreviews" type="number" min={0} max={1000} value={config.maxReviews}
                   onChange={(e) => setConfig((c) => ({ ...c, maxReviews: Number(e.target.value) }))}
-                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                  className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
               </div>
 
-              {/* ── Action buttons (full-width row) ── */}
+              {/* Action buttons */}
               <div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-wrap items-center gap-3 pt-1">
-                <button
-                  onClick={saveConfig}
-                  disabled={configSaving}
-                  className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
+                <button onClick={saveConfig} disabled={configSaving}
+                  className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
                   {configSaving ? "Saving..." : "Save Settings"}
                 </button>
-
-                <button
-                  onClick={runNow}
-                  disabled={running}
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
-                >
+                <button onClick={runNow} disabled={running}
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors">
                   {running ? (
-                    <>
-                      <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
-                      </svg>
-                      Running...
-                    </>
+                    <><svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" /></svg>Running...</>
                   ) : (
-                    <>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                      </svg>
-                      Run Now
-                    </>
+                    <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>Run Now</>
                   )}
                 </button>
               </div>
@@ -468,15 +420,10 @@ export default function ProspectsPage() {
       )}
 
       {/* ── Filter tabs ── */}
-      <div className="mb-6 flex gap-2 flex-wrap">
+      <div className="mb-4 flex gap-2 flex-wrap">
         {["PENDING", "APPROVED", "CONTACTED", "REJECTED", "ALL"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              filter === s ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
+          <button key={s} onClick={() => setFilter(s)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${filter === s ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
             {s}
           </button>
         ))}
@@ -484,6 +431,22 @@ export default function ProspectsPage() {
 
       {/* ── Table filters ── */}
       <div className="mb-4 flex flex-wrap gap-3 items-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">City</label>
+          <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}
+            className="w-36 px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All cities</option>
+            {uniqueCities.map((c) => (<option key={c} value={c}>{c}</option>))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Category</label>
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}
+            className="w-40 px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All categories</option>
+            {uniqueCategories.map((c) => (<option key={c} value={c}>{c}</option>))}
+          </select>
+        </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-500">Min Rating</label>
           <input type="number" min="0" max="5" step="0.1" placeholder="e.g. 3.0" value={minRating}
@@ -508,16 +471,47 @@ export default function ProspectsPage() {
             onChange={(e) => setMaxReviews(e.target.value)}
             className="w-28 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
-        {(minRating || maxRating || minReviews || maxReviews) && (
-          <button onClick={() => { setMinRating(""); setMaxRating(""); setMinReviews(""); setMaxReviews(""); }}
-            className="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+        {hasFilters && (
+          <button onClick={() => { setMinRating(""); setMaxRating(""); setMinReviews(""); setMaxReviews(""); setFilterCity(""); setFilterCategory(""); }}
+            className="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors self-end">
             Clear filters
           </button>
         )}
-        {(minRating || maxRating || minReviews || maxReviews) && (
-          <span className="text-xs text-gray-400">{filteredProspects.length} of {prospects.length} shown</span>
+        {hasFilters && (
+          <span className="text-xs text-gray-400 self-end pb-1.5">{filteredProspects.length} of {prospects.length} shown</span>
         )}
       </div>
+
+      {/* ── Bulk action toolbar ── */}
+      {selectedIds.size > 0 && (
+        <div className="mb-4 flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl">
+          <span className="text-sm font-medium text-blue-700">{selectedIds.size} selected</span>
+          <div className="flex gap-2 ml-2">
+            {filter === "PENDING" && (
+              <>
+                <button disabled={bulkSaving} onClick={() => bulkUpdateStatus("APPROVED")}
+                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 disabled:opacity-50 transition-colors">
+                  {bulkSaving ? "..." : `Approve (${selectedIds.size})`}
+                </button>
+                <button disabled={bulkSaving} onClick={() => bulkUpdateStatus("REJECTED")}
+                  className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-medium hover:bg-red-200 disabled:opacity-50 transition-colors">
+                  {bulkSaving ? "..." : `Reject (${selectedIds.size})`}
+                </button>
+              </>
+            )}
+            {filter === "APPROVED" && (
+              <button disabled={bulkSaving} onClick={() => bulkUpdateStatus("CONTACTED")}
+                className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                {bulkSaving ? "..." : `Mark Contacted (${selectedIds.size})`}
+              </button>
+            )}
+            <button onClick={() => setSelectedIds(new Set())}
+              className="px-3 py-1.5 bg-white text-gray-500 rounded-lg text-xs font-medium hover:bg-gray-100 border border-gray-200 transition-colors">
+              Deselect all
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Prospect table ── */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -527,13 +521,19 @@ export default function ProspectsPage() {
           <div className="px-6 py-16 text-center text-gray-400">
             <p className="text-4xl mb-3">🔍</p>
             <p className="font-medium text-gray-600">{prospects.length === 0 ? "No prospects yet" : "No prospects match your filters"}</p>
-            <p className="text-sm mt-1">{prospects.length === 0 ? "Run the Google Maps workflow in n8n to find prospects." : "Try adjusting the rating or review filters above."}</p>
+            <p className="text-sm mt-1">{prospects.length === 0 ? "Run the Google Maps workflow to find prospects." : "Try adjusting the filters above."}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
                 <tr>
+                  <th className="px-4 py-3 text-left">
+                    <input type="checkbox"
+                      checked={selectedIds.size === filteredProspects.length && filteredProspects.length > 0}
+                      onChange={toggleSelectAll}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                  </th>
                   <th className="px-6 py-3 text-left">Business</th>
                   <th className="px-6 py-3 text-left">City</th>
                   <th className="px-6 py-3 text-left">Category</th>
@@ -547,7 +547,11 @@ export default function ProspectsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredProspects.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
+                  <tr key={p.id} className={`hover:bg-gray-50 transition-colors ${selectedIds.has(p.id) ? "bg-blue-50" : ""}`}>
+                    <td className="px-4 py-4">
+                      <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                    </td>
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900">{p.businessName}</p>
                       {p.website && (
@@ -567,54 +571,33 @@ export default function ProspectsPage() {
                     <td className="px-6 py-4 text-gray-600">{p.phone || "—"}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <input
-                          type="email"
-                          defaultValue={p.email ?? ""}
-                          onBlur={(e) => {
-                            const val = e.target.value.trim();
-                            if (val !== (p.email ?? "")) {
-                              saveEmail(p.id, val);
-                            }
-                          }}
+                        <input type="email" defaultValue={p.email ?? ""}
+                          onBlur={(e) => { const val = e.target.value.trim(); if (val !== (p.email ?? "")) saveEmail(p.id, val); }}
                           placeholder="email@example.com"
-                          className="w-44 px-2 py-1 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 text-gray-700 placeholder-gray-300"
-                        />
-                        {emailSaved === p.id && (
-                          <span className="text-green-600 text-xs font-medium">✓</span>
-                        )}
+                          className="w-44 px-2 py-1 text-xs rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 text-gray-700 placeholder-gray-300" />
+                        {emailSaved === p.id && <span className="text-green-600 text-xs font-medium">✓</span>}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[p.status]}`}>
-                        {p.status}
-                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[p.status]}`}>{p.status}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         {p.status === "PENDING" && (
                           <>
-                            <button
-                              disabled={saving === p.id}
-                              onClick={() => updateStatus(p.id, "APPROVED")}
-                              className="px-3 py-1 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 disabled:opacity-50"
-                            >
+                            <button disabled={saving === p.id} onClick={() => updateStatus(p.id, "APPROVED")}
+                              className="px-3 py-1 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 disabled:opacity-50">
                               Approve
                             </button>
-                            <button
-                              disabled={saving === p.id}
-                              onClick={() => updateStatus(p.id, "REJECTED")}
-                              className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-medium hover:bg-red-200 disabled:opacity-50"
-                            >
+                            <button disabled={saving === p.id} onClick={() => updateStatus(p.id, "REJECTED")}
+                              className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-medium hover:bg-red-200 disabled:opacity-50">
                               Reject
                             </button>
                           </>
                         )}
                         {p.status === "APPROVED" && (
-                          <button
-                            disabled={saving === p.id}
-                            onClick={() => updateStatus(p.id, "CONTACTED")}
-                            className="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
-                          >
+                          <button disabled={saving === p.id} onClick={() => updateStatus(p.id, "CONTACTED")}
+                            className="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-50">
                             Mark Contacted
                           </button>
                         )}
