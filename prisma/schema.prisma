@@ -144,6 +144,7 @@ enum ProspectStatus {
 model ProspectConfig {
   id         String   @id @default("singleton")
   country    String   @default("")
+  state      String   @default("")
   city       String   @default("")
   category   String   @default("")
   maxReviews Int      @default(20)

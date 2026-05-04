@@ -32,8 +32,9 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { country, city, category, maxReviews } = body as {
+  const { country, state, city, category, maxReviews } = body as {
     country?: string;
+    state?: string;
     city?: string;
     category?: string;
     maxReviews?: number;
@@ -43,6 +44,7 @@ export async function PATCH(req: NextRequest) {
     where: { id: SINGLETON_ID },
     update: {
       ...(country !== undefined && { country }),
+      ...(state !== undefined && { state }),
       ...(city !== undefined && { city }),
       ...(category !== undefined && { category }),
       ...(maxReviews !== undefined && { maxReviews: Number(maxReviews) }),
@@ -50,6 +52,7 @@ export async function PATCH(req: NextRequest) {
     create: {
       id: SINGLETON_ID,
       country: country ?? "",
+      state: state ?? "",
       city: city ?? "",
       category: category ?? "",
       maxReviews: maxReviews !== undefined ? Number(maxReviews) : 20,

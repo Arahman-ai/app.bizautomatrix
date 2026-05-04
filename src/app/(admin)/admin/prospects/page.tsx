@@ -20,10 +20,22 @@ type Prospect = {
 
 type ProspectConfig = {
   country: string;
+  state: string;
   city: string;
   category: string;
   maxReviews: number;
 };
+
+const US_STATES = [
+  "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
+  "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
+  "Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan",
+  "Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire",
+  "New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio",
+  "Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota",
+  "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia",
+  "Wisconsin","Wyoming",
+];
 
 const COUNTRY_CITIES: Record<string, string[]> = {
   "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Atlanta", "Miami", "Dallas", "Seattle", "Boston", "Phoenix"],
@@ -72,7 +84,7 @@ export default function ProspectsPage() {
 
   // Settings panel state
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [config, setConfig] = useState<ProspectConfig>({ country: "", city: "", category: "", maxReviews: 20 });
+  const [config, setConfig] = useState<ProspectConfig>({ country: "", state: "", city: "", category: "", maxReviews: 20 });
   const [configLoading, setConfigLoading] = useState(false);
   const [configSaving, setConfigSaving] = useState(false);
   const [savedBanner, setSavedBanner] = useState(false);
@@ -344,6 +356,24 @@ export default function ProspectsPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* State */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-600">State / Province <span className="text-gray-400 font-normal">(optional)</span></label>
+                {config.country === "United States" ? (
+                  <select value={config.state}
+                    onChange={(e) => setConfig((c) => ({ ...c, state: e.target.value }))}
+                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Any state...</option>
+                    {US_STATES.map((s) => (<option key={s} value={s}>{s}</option>))}
+                  </select>
+                ) : (
+                  <input type="text" placeholder="Any state/province..."
+                    value={config.state}
+                    onChange={(e) => setConfig((c) => ({ ...c, state: e.target.value }))}
+                    className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                )}
               </div>
 
               {/* City */}
