@@ -15,12 +15,18 @@ export default function SocialDraftsPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [topic, setTopic] = useState("");
+  const [tone, setTone] = useState("friendly");
 
   async function generate() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/client/social-drafts", { method: "POST" });
+      const res = await fetch("/api/client/social-drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, tone }),
+      });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Failed to generate posts."); return; }
       setPosts(data.posts);
@@ -45,13 +51,37 @@ export default function SocialDraftsPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8 max-w-xl">
-        <p className="text-sm text-gray-600 mb-4">
-          Click generate to get fresh social media posts tailored to your business. Each post is written for Facebook, Instagram, and LinkedIn.
-        </p>
+        <div className="space-y-4 mb-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              What should the post be about? <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <textarea
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              rows={3}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors resize-none"
+              placeholder="e.g. We just launched a new menu, 20% off this weekend, celebrating 5 years in business..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Tone</label>
+            <select
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors"
+            >
+              <option value="friendly">Friendly & Warm</option>
+              <option value="professional">Professional</option>
+              <option value="exciting">Exciting & Energetic</option>
+              <option value="funny">Light & Humorous</option>
+            </select>
+          </div>
+        </div>
         <button
           onClick={generate}
           disabled={loading}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+          className="w-full bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
