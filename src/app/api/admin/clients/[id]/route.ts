@@ -26,3 +26,23 @@ export async function PATCH(
 
   return NextResponse.json({ success: true, client: updated });
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const role = (session.user as { role?: string }).role;
+  if (role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { id } = await params;
+  const client = await prisma.client.findUnique({ where: { id }, select: { userId: true } });
+  if (!client) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await prisma.client.delete({ where: { id } });
+  await prisma.user.delete({ where: { id: client.userId } });
+
+  return NextResponse.json({ success: true });
+}

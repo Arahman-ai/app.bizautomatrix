@@ -22,6 +22,12 @@ export default function ClientsPage() {
       .then((d) => { setClients(d.clients); setLoading(false); });
   }, []);
 
+  async function deleteClient(id: string) {
+    if (!confirm("Delete this client and their account? This cannot be undone.")) return;
+    await fetch(`/api/admin/clients/${id}`, { method: "DELETE" });
+    setClients((prev) => prev.filter((c) => c.id !== id));
+  }
+
   async function update(id: string, field: "plan" | "status", value: string) {
     setSaving(id + field);
     await fetch(`/api/admin/clients/${id}`, {
@@ -61,6 +67,7 @@ export default function ClientsPage() {
                   <th className="px-6 py-3 text-left">Plan</th>
                   <th className="px-6 py-3 text-left">Status</th>
                   <th className="px-6 py-3 text-left">Joined</th>
+                  <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -102,6 +109,14 @@ export default function ClientsPage() {
                     </td>
                     <td className="px-6 py-4 text-gray-400">
                       {new Date(client.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button onClick={() => deleteClient(client.id)}
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1 rounded transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     </td>
                   </tr>
                 ))}
