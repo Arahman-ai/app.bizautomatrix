@@ -8,6 +8,9 @@ import { useState } from "react";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "⊞" },
   { href: "/dashboard/reviews", label: "Review Requests", icon: "⭐" },
+  { href: "/dashboard/monthly-report", label: "Monthly Report", icon: "📊" },
+  { href: "/dashboard/social-drafts", label: "Social Media Drafts", icon: "📱" },
+  { href: "/dashboard/google-business", label: "Google Business", icon: "📍" },
   { href: "/dashboard/billing", label: "Billing & Plan", icon: "💳" },
   { href: "/dashboard/settings", label: "Business Settings", icon: "⚙️" },
 ];
@@ -105,10 +108,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8 overflow-auto">
+        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8 overflow-auto pb-24 lg:pb-8">
           {children}
         </main>
       </div>
+
+      {/* Mobile bottom nav */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 flex">
+        {[
+          { href: "/dashboard", label: "Home", icon: "⊞" },
+          { href: "/dashboard/reviews", label: "Reviews", icon: "⭐" },
+          { href: "/dashboard/google-business", label: "Google", icon: "📍" },
+          { href: "/dashboard/billing", label: "Billing", icon: "💳" },
+          { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
+        ].map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 text-xs font-medium transition-colors ${
+              pathname === item.href ? "text-blue-600" : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            <span className="text-lg leading-none">{item.icon}</span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }
