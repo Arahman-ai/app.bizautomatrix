@@ -3,6 +3,37 @@
 import { useState, useEffect } from "react";
 
 export default function SettingsPage() {
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (pwForm.next !== pwForm.confirm) {
+      setPwMsg({ ok: false, text: "New passwords do not match." });
+      return;
+    }
+    if (pwForm.next.length < 8) {
+      setPwMsg({ ok: false, text: "Password must be at least 8 characters." });
+      return;
+    }
+    setPwSaving(true);
+    setPwMsg(null);
+    const res = await fetch("/api/client/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.next }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setPwMsg({ ok: true, text: "Password changed successfully." });
+      setPwForm({ current: "", next: "", confirm: "" });
+    } else {
+      setPwMsg({ ok: false, text: data.error ?? "Failed to change password." });
+    }
+    setPwSaving(false);
+  }
+
   const [form, setForm] = useState({
     businessName: "",
     website: "",
@@ -153,6 +184,40 @@ export default function SettingsPage() {
               {loading ? "Saving..." : "Save Changes"}
             </button>
             {saved && <span className="text-green-600 text-sm font-medium">Saved!</span>}
+          </div>
+        </form>
+      </div>
+
+      {/* Change Password */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 max-w-2xl mt-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">Change Password</h2>
+        <p className="text-sm text-gray-500 mb-5">Update your login password.</p>
+        <form onSubmit={handleChangePassword} className="space-y-4">
+          <Field label="Current Password">
+            <input type="password" value={pwForm.current} required
+              onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
+              className="input" placeholder="Enter current password" />
+          </Field>
+          <Field label="New Password">
+            <input type="password" value={pwForm.next} required
+              onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
+              className="input" placeholder="At least 8 characters" />
+          </Field>
+          <Field label="Confirm New Password">
+            <input type="password" value={pwForm.confirm} required
+              onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+              className="input" placeholder="Repeat new password" />
+          </Field>
+          <div className="flex items-center gap-4 pt-1">
+            <button type="submit" disabled={pwSaving}
+              className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              {pwSaving ? "Saving..." : "Update Password"}
+            </button>
+            {pwMsg && (
+              <span className={`text-sm font-medium ${pwMsg.ok ? "text-green-600" : "text-red-500"}`}>
+                {pwMsg.text}
+              </span>
+            )}
           </div>
         </form>
       </div>
