@@ -76,7 +76,7 @@ export default async function DashboardPage() {
         <ActionCard icon="⭐" title="Review Requests" desc="Send review requests to your customers via email." href="/dashboard/reviews" />
         <ActionCard icon="📱" title="Social Media Drafts" desc="View and approve AI-generated posts for your business." href="/dashboard/social-drafts" />
         <ActionCard icon="📊" title="Monthly Report" desc="See your latest performance report and insights." href="/dashboard/monthly-report" />
-        <ActionCard icon="📍" title="Google Business" desc="Optimize your Google Business Profile listing." href="#" comingSoon />
+        <ActionCard icon="📍" title="Google Business" desc="Optimize your Google Business Profile listing." href="/dashboard/google-business" />
         <ActionCard icon="💳" title="Billing & Plan" desc="Manage your subscription and payment method." href="/dashboard/billing" />
         <ActionCard icon="⚙️" title="Business Settings" desc="Update your business info, hours, and contact details." href="/dashboard/settings" />
       </div>
