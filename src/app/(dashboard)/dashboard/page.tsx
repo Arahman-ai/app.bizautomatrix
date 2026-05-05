@@ -74,7 +74,7 @@ export default async function DashboardPage() {
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
         <ActionCard icon="⭐" title="Review Requests" desc="Send review requests to your customers via email." href="/dashboard/reviews" />
-        <ActionCard icon="📱" title="Social Media Drafts" desc="View and approve AI-generated posts for your business." href="#" comingSoon />
+        <ActionCard icon="📱" title="Social Media Drafts" desc="View and approve AI-generated posts for your business." href="/dashboard/social-drafts" />
         <ActionCard icon="📊" title="Monthly Report" desc="See your latest performance report and insights." href="/dashboard/monthly-report" />
         <ActionCard icon="📍" title="Google Business" desc="Optimize your Google Business Profile listing." href="#" comingSoon />
         <ActionCard icon="💳" title="Billing & Plan" desc="Manage your subscription and payment method." href="/dashboard/billing" />
