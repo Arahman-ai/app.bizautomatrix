@@ -25,6 +25,7 @@ type ProspectConfig = {
   city: string;
   category: string;
   maxReviews: number;
+  excludedCategories: string;
 };
 
 const US_STATES = [
@@ -85,7 +86,8 @@ export default function ProspectsPage() {
 
   // Settings panel state
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [config, setConfig] = useState<ProspectConfig>({ country: "", state: "", city: "", category: "", maxReviews: 20 });
+  const [config, setConfig] = useState<ProspectConfig>({ country: "", state: "", city: "", category: "", maxReviews: 20, excludedCategories: "consultant,lawyer,accountant,insurance,real_estate_agency,finance,bank,government" });
+  const [newExcludedCat, setNewExcludedCat] = useState("");
   const [configLoading, setConfigLoading] = useState(false);
   const [configSaving, setConfigSaving] = useState(false);
   const [savedBanner, setSavedBanner] = useState(false);
@@ -145,7 +147,7 @@ export default function ProspectsPage() {
     await fetch("/api/admin/prospect-config", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...config, category: finalCategory }),
+      body: JSON.stringify({ ...config, category: finalCategory, excludedCategories: config.excludedCategories }),
     });
     setConfigSaving(false);
     setSavedBanner(true);
@@ -616,6 +618,49 @@ export default function ProspectsPage() {
                 <input id="cfg-maxreviews" type="number" min={0} max={1000} value={config.maxReviews}
                   onChange={(e) => setConfig((c) => ({ ...c, maxReviews: Number(e.target.value) }))}
                   className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+              </div>
+
+              {/* Excluded Categories */}
+              <div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col gap-2">
+                <label className="text-xs font-medium text-gray-600">Excluded Categories <span className="text-gray-400 font-normal">(businesses in these categories will be skipped during scraping)</span></label>
+                <div className="flex flex-wrap gap-2 min-h-[36px] p-2 rounded-lg border border-gray-200 bg-gray-50">
+                  {config.excludedCategories.split(",").filter(Boolean).map((cat) => (
+                    <span key={cat} className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                      {cat.trim()}
+                      <button type="button" onClick={() => {
+                        const updated = config.excludedCategories.split(",").filter((c) => c.trim() !== cat.trim()).join(",");
+                        setConfig((c) => ({ ...c, excludedCategories: updated }));
+                      }} className="ml-0.5 hover:text-red-900 leading-none">✕</button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="e.g. gym, pharmacy..." value={newExcludedCat}
+                    onChange={(e) => setNewExcludedCat(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newExcludedCat.trim()) {
+                        e.preventDefault();
+                        const cat = newExcludedCat.trim().toLowerCase().replace(/\s+/g, "_");
+                        const existing = config.excludedCategories.split(",").map((c) => c.trim()).filter(Boolean);
+                        if (!existing.includes(cat)) {
+                          setConfig((c) => ({ ...c, excludedCategories: [...existing, cat].join(",") }));
+                        }
+                        setNewExcludedCat("");
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <button type="button" onClick={() => {
+                    if (!newExcludedCat.trim()) return;
+                    const cat = newExcludedCat.trim().toLowerCase().replace(/\s+/g, "_");
+                    const existing = config.excludedCategories.split(",").map((c) => c.trim()).filter(Boolean);
+                    if (!existing.includes(cat)) {
+                      setConfig((c) => ({ ...c, excludedCategories: [...existing, cat].join(",") }));
+                    }
+                    setNewExcludedCat("");
+                  }} className="px-4 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                    Add
+                  </button>
+                </div>
               </div>
 
               {/* Action buttons */}

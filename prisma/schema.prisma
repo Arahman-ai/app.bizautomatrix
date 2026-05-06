@@ -143,13 +143,14 @@ enum ProspectStatus {
 // =====================
 
 model ProspectConfig {
-  id         String   @id @default("singleton")
-  country    String   @default("")
-  state      String   @default("")
-  city       String   @default("")
-  category   String   @default("")
-  maxReviews Int      @default(20)
-  updatedAt  DateTime @updatedAt
+  id                 String   @id @default("singleton")
+  country            String   @default("")
+  state              String   @default("")
+  city               String   @default("")
+  category           String   @default("")
+  maxReviews         Int      @default(20)
+  excludedCategories String   @default("consultant,lawyer,accountant,insurance,real_estate_agency,finance,bank,government")
+  updatedAt          DateTime @updatedAt
 }
 
 // =====================

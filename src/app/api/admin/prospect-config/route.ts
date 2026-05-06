@@ -32,12 +32,13 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { country, state, city, category, maxReviews } = body as {
+  const { country, state, city, category, maxReviews, excludedCategories } = body as {
     country?: string;
     state?: string;
     city?: string;
     category?: string;
     maxReviews?: number;
+    excludedCategories?: string;
   };
 
   const config = await prisma.prospectConfig.upsert({
@@ -48,6 +49,7 @@ export async function PATCH(req: NextRequest) {
       ...(city !== undefined && { city }),
       ...(category !== undefined && { category }),
       ...(maxReviews !== undefined && { maxReviews: Number(maxReviews) }),
+      ...(excludedCategories !== undefined && { excludedCategories }),
     },
     create: {
       id: SINGLETON_ID,
@@ -56,6 +58,7 @@ export async function PATCH(req: NextRequest) {
       city: city ?? "",
       category: category ?? "",
       maxReviews: maxReviews !== undefined ? Number(maxReviews) : 20,
+      excludedCategories: excludedCategories ?? "consultant,lawyer,accountant,insurance,real_estate_agency,finance,bank,government",
     },
   });
 
