@@ -6,6 +6,7 @@ type Client = { id: string; businessName: string };
 type RankEntry = {
   id: string;
   keyword: string;
+  productUrl: string | null;
   mapRank: number | null;
   websiteRank: number | null;
   recordedAt: string;
@@ -59,7 +60,7 @@ export default function AdminRankTracker() {
   const [entries, setEntries] = useState<RankEntry[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState({ keyword: "", mapRank: "", websiteRank: "", recordedAt: new Date().toISOString().slice(0, 10) });
+  const [form, setForm] = useState({ keyword: "", productUrl: "", mapRank: "", websiteRank: "", recordedAt: new Date().toISOString().slice(0, 10) });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -86,7 +87,7 @@ export default function AdminRankTracker() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-    setForm(f => ({ ...f, keyword: "", mapRank: "", websiteRank: "" }));
+    setForm(f => ({ ...f, keyword: "", productUrl: "", mapRank: "", websiteRank: "" }));
     const d = await (await fetch(`/api/admin/rank-tracker?clientId=${selectedClient}`)).json();
     setEntries(d.entries ?? []);
   }
@@ -126,13 +127,23 @@ export default function AdminRankTracker() {
           <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Add Rank Entry</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="lg:col-span-2">
+              <div>
                 <label className="text-xs font-medium text-gray-600 block mb-1">Keyword</label>
                 <input
                   type="text"
-                  placeholder="e.g. restaurant Atlanta"
+                  placeholder="e.g. energy saving fan Dhaka"
                   value={form.keyword}
                   onChange={e => setForm(f => ({ ...f, keyword: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">Product URL <span className="text-gray-400 font-normal">(optional)</span></label>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={form.productUrl}
+                  onChange={e => setForm(f => ({ ...f, productUrl: e.target.value }))}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -211,6 +222,15 @@ export default function AdminRankTracker() {
                         >
                           🌐 Check Web
                         </a>
+                        {kwEntries[0]?.productUrl && (
+                          <a
+                            href={kwEntries[0].productUrl}
+                            target="_blank" rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors"
+                          >
+                            🔗 Product Page
+                          </a>
+                        )}
                         <span className="text-xs text-gray-400">{kwEntries.length} entries</span>
                       </div>
                     </div>

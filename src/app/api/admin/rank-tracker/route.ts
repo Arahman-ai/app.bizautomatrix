@@ -34,13 +34,14 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || !isAdmin(session)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { clientId, keyword, mapRank, websiteRank, recordedAt } = await req.json();
+  const { clientId, keyword, productUrl, mapRank, websiteRank, recordedAt } = await req.json();
   if (!clientId || !keyword) return NextResponse.json({ error: "clientId and keyword required" }, { status: 400 });
 
   const entry = await prisma.rankEntry.create({
     data: {
       clientId,
       keyword,
+      productUrl: productUrl || null,
       mapRank: mapRank !== undefined && mapRank !== "" ? Number(mapRank) : null,
       websiteRank: websiteRank !== undefined && websiteRank !== "" ? Number(websiteRank) : null,
       recordedAt: recordedAt ? new Date(recordedAt) : new Date(),

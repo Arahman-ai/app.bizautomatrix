@@ -260,6 +260,7 @@ model RankEntry {
   id          String   @id @default(cuid())
   clientId    String
   keyword     String
+  productUrl  String?
   mapRank     Int?
   websiteRank Int?
   recordedAt  DateTime @default(now())
