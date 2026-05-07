@@ -8,10 +8,9 @@ const PLANS = [
     name: "Free",
     price: 0,
     features: [
-      "10 review requests/month",
-      "GBP audit (view only)",
-      "Dashboard access",
-      "Community support",
+      "Dashboard & settings access",
+      "No review requests",
+      "No SEO tools",
     ],
   },
   {
@@ -19,10 +18,11 @@ const PLANS = [
     name: "Starter",
     price: 49,
     features: [
-      "Google Business Profile audit",
-      "Review request automation (unlimited)",
-      "SEO action plan & task tracker",
+      "100 review requests / month",
+      "GBP audit & optimization checklist",
+      "SEO task checklist",
       "Monthly performance report",
+      "Next Best Action widget",
       "Email support",
     ],
   },
@@ -32,13 +32,14 @@ const PLANS = [
     price: 99,
     highlight: true,
     features: [
+      "500 review requests / month",
       "Everything in Starter",
       "Rank tracker (Maps & website)",
-      "Citation builder & NAP checker",
+      "Citation tracker (30+ directories)",
       "Competitor analysis",
       "Site audit & PageSpeed scores",
       "Full SEO report",
-      "AI social media post drafts",
+      "AI social media drafts",
       "Priority support",
     ],
   },
@@ -47,12 +48,12 @@ const PLANS = [
     name: "Pro",
     price: 199,
     features: [
+      "Unlimited review requests",
       "Everything in Growth",
-      "Multi-location support",
-      "Custom automation workflows",
-      "Keyword research & suggestions",
-      "White-label reports",
       "Dedicated account manager",
+      "Monthly strategy call",
+      "White-label PDF reports",
+      "Multi-location support",
     ],
   },
 ];
@@ -188,6 +189,52 @@ export default function BillingPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Feature comparison table */}
+      <div className="mt-12 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h2 className="text-base font-semibold text-gray-900">Full Feature Comparison</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50">
+                <th className="text-left px-6 py-3 font-medium text-gray-500 w-1/3">Feature</th>
+                {["Free", "Starter", "Growth", "Pro"].map(p => (
+                  <th key={p} className={`px-4 py-3 text-center font-semibold ${p === "Growth" ? "text-blue-600" : "text-gray-700"}`}>{p}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {[
+                ["Dashboard + Settings",     "✓", "✓",       "✓",       "✓"],
+                ["Review Requests",          "—", "100/mo",  "500/mo",  "Unlimited"],
+                ["GBP Audit",                "—", "✓",       "✓",       "✓"],
+                ["SEO Task Checklist",       "—", "✓",       "✓",       "✓"],
+                ["Monthly Report",           "—", "✓",       "✓",       "✓"],
+                ["Next Best Action",         "—", "✓",       "✓",       "✓"],
+                ["Rank Tracker",             "—", "—",       "✓",       "✓"],
+                ["Citation Tracker",         "—", "—",       "✓",       "✓"],
+                ["Competitor Analysis",      "—", "—",       "✓",       "✓"],
+                ["Site Audit (PageSpeed)",   "—", "—",       "✓",       "✓"],
+                ["SEO Report",               "—", "—",       "✓",       "✓"],
+                ["Social Media Drafts",      "—", "—",       "✓",       "✓"],
+                ["Dedicated Manager",        "—", "—",       "—",       "✓"],
+                ["Monthly Strategy Call",    "—", "—",       "—",       "✓"],
+              ].map(([feature, ...vals]) => (
+                <tr key={feature} className="hover:bg-gray-50">
+                  <td className="px-6 py-3 font-medium text-gray-700">{feature}</td>
+                  {vals.map((v, i) => (
+                    <td key={i} className={`px-4 py-3 text-center ${v === "✓" ? "text-green-600 font-bold" : v === "—" ? "text-gray-300" : "text-blue-600 font-semibold"}`}>
+                      {v}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <p className="text-center text-sm text-gray-400 mt-8">
