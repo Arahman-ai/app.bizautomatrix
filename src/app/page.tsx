@@ -58,9 +58,9 @@ const PLANS = [
     name: "Free",
     price: 0,
     features: [
-      "10 review requests/month",
-      "GBP audit (view only)",
-      "Dashboard access",
+      "10 review requests / month",
+      "Google Business Profile audit",
+      "Client dashboard access",
       "Community support",
     ],
   },
@@ -68,8 +68,8 @@ const PLANS = [
     name: "Starter",
     price: 49,
     features: [
-      "Google Business Profile audit",
-      "Review request automation (unlimited)",
+      "Unlimited review requests",
+      "GBP audit + optimization checklist",
       "SEO action plan & task tracker",
       "Monthly performance report",
       "Email support",
@@ -81,11 +81,11 @@ const PLANS = [
     highlight: true,
     features: [
       "Everything in Starter",
-      "Rank tracker (Maps & website)",
-      "Citation builder & NAP checker",
-      "Competitor analysis",
+      "Google Maps & website rank tracker",
+      "Citation builder across 30+ directories",
+      "Competitor analysis & benchmarking",
       "Site audit & PageSpeed scores",
-      "Full SEO report",
+      "Full monthly SEO report",
       "AI social media post drafts",
       "Priority support",
     ],
@@ -95,10 +95,10 @@ const PLANS = [
     price: 199,
     features: [
       "Everything in Growth",
-      "Multi-location support",
-      "Custom automation workflows",
+      "Multi-location management",
+      "Custom n8n automation workflows",
       "Keyword research & suggestions",
-      "White-label reports",
+      "White-label PDF reports",
       "Dedicated account manager",
     ],
   },
@@ -283,99 +283,72 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 px-4 bg-white">
+      <section id="pricing" className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
+            <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600 text-lg">No contracts. Cancel anytime.</p>
+            <p className="text-gray-500 text-lg">No contracts. No setup fees. Cancel anytime.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl border p-6 flex flex-col ${
+                className={`rounded-2xl p-7 flex flex-col relative ${
                   plan.highlight
-                    ? "border-blue-500 shadow-xl bg-blue-600 text-white"
-                    : "border-gray-200 bg-white"
+                    ? "bg-blue-600 shadow-2xl shadow-blue-200 scale-105"
+                    : "bg-white border border-gray-200 shadow-sm"
                 }`}
               >
                 {plan.highlight && (
-                  <span className="text-xs font-semibold bg-white text-blue-600 px-3 py-1 rounded-full w-fit mb-4">
-                    Most Popular
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-bold bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full whitespace-nowrap">
+                    ⭐ Most Popular
                   </span>
                 )}
-                <h3 className={`text-xl font-bold mb-2 ${plan.highlight ? "text-white" : "text-gray-900"}`}>
-                  {plan.name}
-                </h3>
-                <div className="mb-6">
-                  {plan.price === 0 ? (
-                    <span className={`text-4xl font-bold ${plan.highlight ? "text-white" : "text-gray-900"}`}>Free</span>
-                  ) : (
-                    <>
-                      <span className={`text-4xl font-bold ${plan.highlight ? "text-white" : "text-gray-900"}`}>
-                        ${plan.price}
-                      </span>
-                      <span className={plan.highlight ? "text-blue-200" : "text-gray-500"}>/month</span>
-                    </>
-                  )}
+                <div className="mb-5">
+                  <h3 className={`text-lg font-bold mb-1 ${plan.highlight ? "text-white" : "text-gray-900"}`}>
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-end gap-1">
+                    {plan.price === 0 ? (
+                      <span className={`text-4xl font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>Free</span>
+                    ) : (
+                      <>
+                        <span className={`text-4xl font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>${plan.price}</span>
+                        <span className={`text-sm mb-1.5 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>/mo</span>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <ul className="space-y-2 mb-8 flex-1">
+                <ul className="space-y-2.5 mb-8 flex-1">
                   {plan.features.map((f) => (
-                    <li key={f} className={`flex items-start gap-2 text-sm ${plan.highlight ? "text-blue-100" : "text-gray-600"}`}>
-                      <span className={plan.highlight ? "text-white" : "text-green-500"}>✓</span>
+                    <li key={f} className={`flex items-start gap-2.5 text-sm ${plan.highlight ? "text-blue-100" : "text-gray-600"}`}>
+                      <span className={`mt-0.5 flex-shrink-0 font-bold ${plan.highlight ? "text-yellow-300" : "text-blue-500"}`}>✓</span>
                       {f}
                     </li>
                   ))}
                 </ul>
                 <Link
-                  href={plan.price === 0 ? "/signup" : "#audit"}
-                  className={`w-full text-center py-3 rounded-xl font-semibold text-sm transition-colors ${
+                  href={plan.price === 0 ? "/signup" : "/signup"}
+                  className={`w-full text-center py-3 rounded-xl font-bold text-sm transition-all ${
                     plan.highlight
-                      ? "bg-white text-blue-600 hover:bg-blue-50"
+                      ? "bg-white text-blue-600 hover:bg-yellow-400 hover:text-yellow-900"
                       : plan.price === 0
                       ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-gray-900 text-white hover:bg-gray-800"
+                      : "bg-gray-900 text-white hover:bg-blue-600"
                   }`}
                 >
-                  {plan.price === 0 ? "Sign Up Free" : "Get Started"}
+                  {plan.price === 0 ? "Start for Free →" : "Get Started →"}
                 </Link>
               </div>
             ))}
-
-            {/* Custom Plan */}
-            <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 flex flex-col">
-              <span className="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full w-fit mb-4">
-                Enterprise
-              </span>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Custom</h3>
-              <div className="mb-6">
-                <span className="text-2xl font-bold text-gray-900">Custom Price</span>
-              </div>
-              <ul className="space-y-2 mb-8 flex-1">
-                {[
-                  "SEO — Organic Search Rankings",
-                  "SEM — Google Search Ads",
-                  "Local Citation Building",
-                  "Competitor Tracking",
-                  "Social Media Management",
-                  "Google Business Profile Full Setup",
-                  "Everything in Pro",
-                  "Dedicated account manager",
-                ].map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="text-blue-500">✓</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="mailto:info@bizautomatrix.com"
-                className="w-full text-center py-3 rounded-xl font-semibold text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Contact Us for a Proposal
-              </a>
-            </div>
           </div>
+          <p className="text-center text-sm text-gray-400 mt-10">
+            Need a custom plan for multiple locations or agencies?{" "}
+            <a href="mailto:info@bizautomatrix.com" className="text-blue-600 hover:underline font-medium">
+              Contact us →
+            </a>
+          </p>
         </div>
       </section>
 
