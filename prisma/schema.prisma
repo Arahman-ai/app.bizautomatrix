@@ -93,6 +93,7 @@ model Client {
   audits         Audit[]
   subscriptions  Subscription[]
   reviewRequests ReviewRequest[]
+  rankEntries    RankEntry[]
 }
 
 enum ClientStatus {
@@ -249,6 +250,21 @@ enum SubscriptionStatus {
   PAST_DUE
   CANCELLED
   TRIALING
+}
+
+// =====================
+// RANK TRACKING
+// =====================
+
+model RankEntry {
+  id          String   @id @default(cuid())
+  clientId    String
+  keyword     String
+  mapRank     Int?
+  websiteRank Int?
+  recordedAt  DateTime @default(now())
+
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 // =====================

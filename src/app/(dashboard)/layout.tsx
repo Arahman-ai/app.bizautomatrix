@@ -11,6 +11,7 @@ const navItems = [
   { href: "/dashboard/monthly-report", label: "Monthly Report", icon: "📊" },
   { href: "/dashboard/social-drafts", label: "Social Media Drafts", icon: "📱" },
   { href: "/dashboard/google-business", label: "Google Business", icon: "📍" },
+  { href: "/dashboard/rank-tracker", label: "Rank Tracker", icon: "📈" },
   { href: "/dashboard/billing", label: "Billing & Plan", icon: "💳" },
   { href: "/dashboard/settings", label: "Business Settings", icon: "⚙️" },
 ];

@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin/leads", label: "Leads", icon: "🎯" },
   { href: "/admin/clients", label: "Clients", icon: "👥" },
   { href: "/admin/email-template", label: "Email Template", icon: "✉️" },
+  { href: "/admin/rank-tracker", label: "Rank Tracker", icon: "📈" },
 ];
 
 export default function AdminSidebar({ user }: { user: { name?: string | null; email?: string | null } }) {
