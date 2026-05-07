@@ -55,6 +55,16 @@ const STEPS = [
 
 const PLANS = [
   {
+    name: "Free",
+    price: 0,
+    features: [
+      "10 review requests/month",
+      "GBP audit (view only)",
+      "Dashboard access",
+      "Community support",
+    ],
+  },
+  {
     name: "Starter",
     price: 49,
     features: [
@@ -279,11 +289,11 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Simple, Transparent Pricing</h2>
             <p className="text-gray-600 text-lg">No contracts. Cancel anytime.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
             {PLANS.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl border p-8 flex flex-col ${
+                className={`rounded-2xl border p-6 flex flex-col ${
                   plan.highlight
                     ? "border-blue-500 shadow-xl bg-blue-600 text-white"
                     : "border-gray-200 bg-white"
@@ -298,10 +308,16 @@ export default function Home() {
                   {plan.name}
                 </h3>
                 <div className="mb-6">
-                  <span className={`text-4xl font-bold ${plan.highlight ? "text-white" : "text-gray-900"}`}>
-                    ${plan.price}
-                  </span>
-                  <span className={plan.highlight ? "text-blue-200" : "text-gray-500"}>/month</span>
+                  {plan.price === 0 ? (
+                    <span className={`text-4xl font-bold ${plan.highlight ? "text-white" : "text-gray-900"}`}>Free</span>
+                  ) : (
+                    <>
+                      <span className={`text-4xl font-bold ${plan.highlight ? "text-white" : "text-gray-900"}`}>
+                        ${plan.price}
+                      </span>
+                      <span className={plan.highlight ? "text-blue-200" : "text-gray-500"}>/month</span>
+                    </>
+                  )}
                 </div>
                 <ul className="space-y-2 mb-8 flex-1">
                   {plan.features.map((f) => (
@@ -312,14 +328,16 @@ export default function Home() {
                   ))}
                 </ul>
                 <Link
-                  href="#audit"
+                  href={plan.price === 0 ? "/signup" : "#audit"}
                   className={`w-full text-center py-3 rounded-xl font-semibold text-sm transition-colors ${
                     plan.highlight
                       ? "bg-white text-blue-600 hover:bg-blue-50"
+                      : plan.price === 0
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "bg-gray-900 text-white hover:bg-gray-800"
                   }`}
                 >
-                  Get Started
+                  {plan.price === 0 ? "Sign Up Free" : "Get Started"}
                 </Link>
               </div>
             ))}

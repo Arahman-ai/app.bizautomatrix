@@ -4,6 +4,17 @@ import { useState, useEffect } from "react";
 
 const PLANS = [
   {
+    key: "FREE",
+    name: "Free",
+    price: 0,
+    features: [
+      "10 review requests/month",
+      "GBP audit (view only)",
+      "Dashboard access",
+      "Community support",
+    ],
+  },
+  {
     key: "STARTER",
     name: "Starter",
     price: 49,
@@ -144,8 +155,14 @@ export default function BillingPage() {
               )}
               <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
               <div className="mt-2 mb-6">
-                <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-                <span className="text-gray-500">/month</span>
+                {plan.price === 0 ? (
+                  <span className="text-4xl font-bold text-gray-900">Free</span>
+                ) : (
+                  <>
+                    <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+                    <span className="text-gray-500">/month</span>
+                  </>
+                )}
               </div>
               <ul className="space-y-2 mb-8 flex-1">
                 {plan.features.map((f) => (
@@ -156,17 +173,17 @@ export default function BillingPage() {
                 ))}
               </ul>
               <button
-                onClick={() => handleUpgrade(plan.key)}
-                disabled={loading === plan.key || isCurrent}
+                onClick={() => plan.price > 0 && handleUpgrade(plan.key)}
+                disabled={loading === plan.key || isCurrent || plan.price === 0}
                 className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${
-                  isCurrent
+                  isCurrent || plan.price === 0
                     ? "bg-gray-100 text-gray-400 cursor-default"
                     : plan.highlight
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "bg-gray-900 text-white hover:bg-gray-800"
                 } disabled:opacity-50`}
               >
-                {loading === plan.key ? "Redirecting..." : isCurrent ? "Current Plan" : `Upgrade to ${plan.name}`}
+                {loading === plan.key ? "Redirecting..." : isCurrent ? "Current Plan" : plan.price === 0 ? "Free Plan" : `Upgrade to ${plan.name}`}
               </button>
             </div>
           );
