@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       await prisma.prospect.upsert({
         where: { placeId: p.placeId },
         update: {
+          status: "PENDING",
           rating: p.rating,
           reviewCount: p.reviewCount,
           ...(p.email !== undefined && p.email !== null && p.email !== "" && { email: p.email }),
