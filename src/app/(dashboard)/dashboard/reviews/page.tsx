@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import PlanGate from "@/components/PlanGate";
-import { usePlan } from "@/hooks/usePlan";
+
 
 type ReviewRequest = {
   id: string;
@@ -31,7 +30,6 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function ReviewsPage() {
-  const plan = usePlan();
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -83,10 +81,8 @@ export default function ReviewsPage() {
   const sentCount = requests.filter((r) => r.status === "SENT" || r.status === "CLICKED").length;
   const clickedCount = requests.filter((r) => r.status === "CLICKED").length;
 
-  if (plan === null) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
 
   return (
-    <PlanGate userPlan={plan} requiredPlan="STARTER" featureName="Review Request Automation">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Review Requests</h1>
@@ -214,7 +210,6 @@ export default function ReviewsPage() {
         )}
       </div>
     </div>
-    </PlanGate>
   );
 }
 

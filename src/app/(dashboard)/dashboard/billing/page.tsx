@@ -8,9 +8,10 @@ const PLANS = [
     name: "Free",
     price: 0,
     features: [
-      "Dashboard & settings access",
-      "No review requests",
-      "No SEO tools",
+      "10 review requests / month",
+      "GBP audit (view only)",
+      "Dashboard access",
+      "Community support",
     ],
   },
   {
@@ -209,8 +210,8 @@ export default function BillingPage() {
             <tbody className="divide-y divide-gray-50">
               {[
                 ["Dashboard + Settings",     "✓", "✓",       "✓",       "✓"],
-                ["Review Requests",          "—", "100/mo",  "500/mo",  "Unlimited"],
-                ["GBP Audit",                "—", "✓",       "✓",       "✓"],
+                ["Review Requests",          "10/mo", "100/mo", "500/mo", "Unlimited"],
+                ["GBP Audit",               "View", "✓",      "✓",       "✓"],
                 ["SEO Task Checklist",       "—", "✓",       "✓",       "✓"],
                 ["Monthly Report",           "—", "✓",       "✓",       "✓"],
                 ["Next Best Action",         "—", "✓",       "✓",       "✓"],

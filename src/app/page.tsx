@@ -58,10 +58,10 @@ const PLANS = [
     name: "Free",
     price: 0,
     features: [
-      "Dashboard & settings access",
-      "No review requests",
-      "No SEO tools",
-      "Great for exploring the platform",
+      "10 review requests / month",
+      "GBP audit (view only)",
+      "Dashboard access",
+      "Community support",
     ],
   },
   {

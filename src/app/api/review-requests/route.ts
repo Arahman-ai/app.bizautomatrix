@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { sendReviewRequest } from "@/lib/email";
 
 const PLAN_LIMITS: Record<string, number> = {
-  FREE: 0,
+  FREE: 10,
   STARTER: 100,
   GROWTH: 500,
   PRO: Infinity,
@@ -50,13 +50,6 @@ export async function POST(req: NextRequest) {
 
   // Check monthly limit
   const limit = PLAN_LIMITS[client.plan] ?? 0;
-  if (limit === 0) {
-    return NextResponse.json(
-      { error: "Upgrade to a paid plan to send review requests." },
-      { status: 403 }
-    );
-  }
-
   if (limit !== Infinity) {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
