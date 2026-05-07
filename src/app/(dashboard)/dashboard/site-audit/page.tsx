@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type NapData = { businessName: string; address: string | null; phone: string | null; website: string | null; napConsistent: boolean; napNotes: string | null };
 type PageSpeedResult = { id: string; url: string; mobileScore: number | null; desktopScore: number | null; fcp: number | null; lcp: number | null; cls: number | null; tbt: number | null; recordedAt: string };
@@ -26,6 +28,7 @@ function ScoreCircle({ score, label }: { score: number | null; label: string }) 
 }
 
 export default function ClientSiteAudit() {
+  const plan = usePlan();
   const [nap, setNap] = useState<NapData | null>(null);
   const [pageSpeed, setPageSpeed] = useState<PageSpeedResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,9 +44,10 @@ export default function ClientSiteAudit() {
     });
   }, []);
 
-  if (loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="GROWTH" featureName="Site Audit">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Site Audit</h1>
@@ -143,5 +147,6 @@ export default function ClientSiteAudit() {
         </div>
       </div>
     </div>
+    </PlanGate>
   );
 }

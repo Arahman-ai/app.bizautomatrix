@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type Posts = { facebook: string; instagram: string; linkedin: string };
 
@@ -11,6 +13,7 @@ const PLATFORMS = [
 ] as const;
 
 export default function SocialDraftsPage() {
+  const plan = usePlan();
   const [posts, setPosts] = useState<Posts | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -43,7 +46,10 @@ export default function SocialDraftsPage() {
     setTimeout(() => setCopied(null), 2000);
   }
 
+  if (plan === null) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+
   return (
+    <PlanGate userPlan={plan} requiredPlan="GROWTH" featureName="Social Media Drafts">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Social Media Drafts</h1>
@@ -135,5 +141,6 @@ export default function SocialDraftsPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

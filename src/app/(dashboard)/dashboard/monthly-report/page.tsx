@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type MonthData = { label: string; sent: number; clicked: number };
 
@@ -13,6 +15,7 @@ type Report = {
 };
 
 export default function MonthlyReportPage() {
+  const plan = usePlan();
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +25,7 @@ export default function MonthlyReportPage() {
       .then((d) => { setReport(d); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="text-gray-400 py-16 text-center">Loading report...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 py-16 text-center">Loading report...</div>;
   if (!report) return null;
 
   const current = report.monthlyData[report.monthlyData.length - 1];
@@ -42,6 +45,7 @@ export default function MonthlyReportPage() {
   const sentTrend = trend(current.sent, prev?.sent ?? 0);
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="STARTER" featureName="Monthly Report">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Monthly Report</h1>
@@ -136,6 +140,7 @@ export default function MonthlyReportPage() {
         </table>
       </div>
     </div>
+    </PlanGate>
   );
 }
 

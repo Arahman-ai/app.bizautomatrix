@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type RankEntry = {
   id: string;
@@ -81,6 +83,7 @@ function LineChart({ entries, field, color }: { entries: RankEntry[]; field: "ma
 }
 
 export default function RankTrackerPage() {
+  const plan = usePlan();
   const [entries, setEntries] = useState<RankEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -92,7 +95,10 @@ export default function RankTrackerPage() {
 
   const keywords = [...new Set(entries.map(e => e.keyword))];
 
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+
   return (
+    <PlanGate userPlan={plan} requiredPlan="GROWTH" featureName="Rank Tracker">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Rank Tracker</h1>
@@ -175,5 +181,6 @@ export default function RankTrackerPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

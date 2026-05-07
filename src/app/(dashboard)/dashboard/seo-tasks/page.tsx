@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type SeoTask = { id: string; task: string; category: string; priority: string; completed: boolean; completedAt: string | null };
 
@@ -11,6 +13,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 export default function ClientSeoTasks() {
+  const plan = usePlan();
   const [tasks, setTasks] = useState<SeoTask[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,9 +27,10 @@ export default function ClientSeoTasks() {
   const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
   const categories = [...new Set(tasks.map(t => t.category))];
 
-  if (loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="STARTER" featureName="SEO Action Plan">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">SEO Action Plan</h1>
@@ -89,5 +93,6 @@ export default function ClientSeoTasks() {
         </>
       )}
     </div>
+    </PlanGate>
   );
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type Competitor = { id: string; name: string; website: string | null; mapRank: number | null; websiteRank: number | null; reviewCount: number | null; rating: number | null; notes: string | null };
 
@@ -12,6 +14,7 @@ function RankCell({ rank }: { rank: number | null }) {
 }
 
 export default function ClientCompetitors() {
+  const plan = usePlan();
   const { data: session } = useSession();
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [businessName, setBusinessName] = useState("");
@@ -24,9 +27,10 @@ export default function ClientCompetitors() {
     if (session?.user?.name) setBusinessName(session.user.name);
   }, [session]);
 
-  if (loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="GROWTH" featureName="Competitor Analysis">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Competitor Analysis</h1>
@@ -94,5 +98,6 @@ export default function ClientCompetitors() {
         </>
       )}
     </div>
+    </PlanGate>
   );
 }

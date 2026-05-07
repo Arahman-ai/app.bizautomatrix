@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type Citation = { id: string; directory: string; url: string | null; listed: boolean; napCorrect: boolean };
 
 export default function ClientCitations() {
+  const plan = usePlan();
   const [citations, setCitations] = useState<Citation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,9 +21,10 @@ export default function ClientCitations() {
   const napOk = citations.filter(c => c.napCorrect).length;
   const progress = citations.length > 0 ? Math.round((listed / citations.length) * 100) : 0;
 
-  if (loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="GROWTH" featureName="Citation Tracker">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Business Directory Citations</h1>
@@ -89,5 +93,6 @@ export default function ClientCitations() {
         </>
       )}
     </div>
+    </PlanGate>
   );
 }

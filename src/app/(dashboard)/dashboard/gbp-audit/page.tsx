@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type GbpAudit = {
   hasClaimed: boolean; hasCorrectName: boolean; hasCategory: boolean; hasDescription: boolean;
@@ -39,6 +41,7 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export default function ClientGbpAudit() {
+  const plan = usePlan();
   const [audit, setAudit] = useState<GbpAudit | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,13 +51,14 @@ export default function ClientGbpAudit() {
       .then(d => { setAudit(d.audit); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Loading...</div>;
 
   const score = audit?.score ?? 0;
   const done = audit ? CHECKS.filter(c => audit[c.key]).length : 0;
   const total = CHECKS.length;
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="STARTER" featureName="GBP Audit">
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Google Business Profile Audit</h1>
@@ -121,5 +125,6 @@ export default function ClientGbpAudit() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }

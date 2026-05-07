@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PlanGate from "@/components/PlanGate";
+import { usePlan } from "@/hooks/usePlan";
 
 type Report = {
   client: { businessName: string; website: string | null; city: string | null; industry: string | null; napConsistent: boolean };
@@ -14,6 +16,7 @@ type Report = {
 };
 
 export default function ClientSeoReport() {
+  const plan = usePlan();
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,12 +26,13 @@ export default function ClientSeoReport() {
       .then(d => { setReport(d.report); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="text-gray-400 text-sm p-4">Generating report...</div>;
+  if (plan === null || loading) return <div className="text-gray-400 text-sm p-4">Generating report...</div>;
   if (!report) return <div className="text-gray-400 text-sm p-4">Report not available.</div>;
 
   const keywords = [...new Set(report.rankEntries.map(e => e.keyword))];
 
   return (
+    <PlanGate userPlan={plan} requiredPlan="GROWTH" featureName="SEO Report">
     <div>
       <div className="mb-6 flex items-center justify-between print:hidden">
         <div>
@@ -153,5 +157,6 @@ export default function ClientSeoReport() {
         </div>
       </div>
     </div>
+    </PlanGate>
   );
 }
