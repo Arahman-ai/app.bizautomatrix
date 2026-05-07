@@ -5,12 +5,18 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: "📊" },
-  { href: "/admin/prospects", label: "Prospects", icon: "🔍" },
-  { href: "/admin/leads", label: "Leads", icon: "🎯" },
-  { href: "/admin/clients", label: "Clients", icon: "👥" },
-  { href: "/admin/email-template", label: "Email Template", icon: "✉️" },
-  { href: "/admin/rank-tracker", label: "Rank Tracker", icon: "📈" },
+  { href: "/admin", label: "Dashboard", icon: "📊", section: null },
+  { href: "/admin/prospects", label: "Prospects", icon: "🔍", section: null },
+  { href: "/admin/leads", label: "Leads", icon: "🎯", section: null },
+  { href: "/admin/clients", label: "Clients", icon: "👥", section: null },
+  { href: "/admin/email-template", label: "Email Template", icon: "✉️", section: null },
+  { href: "/admin/rank-tracker", label: "Rank Tracker", icon: "📈", section: "SEO Tools" },
+  { href: "/admin/gbp-audit", label: "GBP Audit", icon: "📍", section: "SEO Tools" },
+  { href: "/admin/citations", label: "Citations", icon: "📋", section: "SEO Tools" },
+  { href: "/admin/seo-tasks", label: "SEO Tasks", icon: "✅", section: "SEO Tools" },
+  { href: "/admin/competitors", label: "Competitors", icon: "🏆", section: "SEO Tools" },
+  { href: "/admin/site-audit", label: "Site Audit", icon: "⚡", section: "SEO Tools" },
+  { href: "/admin/seo-report", label: "SEO Report", icon: "📄", section: "SEO Tools" },
 ];
 
 export default function AdminSidebar({ user }: { user: { name?: string | null; email?: string | null } }) {
@@ -31,23 +37,28 @@ export default function AdminSidebar({ user }: { user: { name?: string | null; e
       </div>
       <p className="px-6 text-xs text-gray-400 pt-2">Admin Panel</p>
 
-      <nav className="flex-1 p-4 space-y-1">
-        {NAV.map((item) => {
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        {NAV.map((item, i) => {
           const active = path === item.href;
+          const showSection = item.section && (i === 0 || NAV[i - 1].section !== item.section);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                active
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              {showSection && (
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest px-4 pt-4 pb-1">{item.section}</p>
+              )}
+              <Link
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                }`}
+              >
+                <span>{item.icon}</span>
+                {item.label}
+              </Link>
+            </div>
           );
         })}
       </nav>

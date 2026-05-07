@@ -88,12 +88,20 @@ model Client {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
+  napConsistent  Boolean         @default(false)
+  napNotes       String?
+
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   leads          Lead[]
   audits         Audit[]
   subscriptions  Subscription[]
   reviewRequests ReviewRequest[]
   rankEntries    RankEntry[]
+  gbpAudit       GbpAudit?
+  citations      Citation[]
+  seoTasks       SeoTask[]
+  competitors    Competitor[]
+  pageSpeedResults PageSpeedResult[]
 }
 
 enum ClientStatus {
@@ -250,6 +258,104 @@ enum SubscriptionStatus {
   PAST_DUE
   CANCELLED
   TRIALING
+}
+
+// =====================
+// GBP AUDIT
+// =====================
+
+model GbpAudit {
+  id              String   @id @default(cuid())
+  clientId        String   @unique
+  hasClaimed      Boolean  @default(false)
+  hasCorrectName  Boolean  @default(false)
+  hasCategory     Boolean  @default(false)
+  hasDescription  Boolean  @default(false)
+  hasPhotos       Boolean  @default(false)
+  hasHours        Boolean  @default(false)
+  hasPosts        Boolean  @default(false)
+  hasServices     Boolean  @default(false)
+  hasWebsite      Boolean  @default(false)
+  hasPhone        Boolean  @default(false)
+  reviewCount     Int?
+  rating          Float?
+  score           Int?
+  notes           String?
+  updatedAt       DateTime @updatedAt
+
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// CITATIONS
+// =====================
+
+model Citation {
+  id          String   @id @default(cuid())
+  clientId    String
+  directory   String
+  url         String?
+  listed      Boolean  @default(false)
+  napCorrect  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// SEO TASKS
+// =====================
+
+model SeoTask {
+  id          String    @id @default(cuid())
+  clientId    String
+  task        String
+  category    String    @default("general")
+  priority    String    @default("MEDIUM")
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// COMPETITORS
+// =====================
+
+model Competitor {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  website     String?
+  mapRank     Int?
+  websiteRank Int?
+  reviewCount Int?
+  rating      Float?
+  notes       String?
+  updatedAt   DateTime @updatedAt
+
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// PAGESPEED
+// =====================
+
+model PageSpeedResult {
+  id           String   @id @default(cuid())
+  clientId     String
+  url          String
+  mobileScore  Int?
+  desktopScore Int?
+  fcp          Float?
+  lcp          Float?
+  cls          Float?
+  tbt          Float?
+  recordedAt   DateTime @default(now())
+
+  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 // =====================

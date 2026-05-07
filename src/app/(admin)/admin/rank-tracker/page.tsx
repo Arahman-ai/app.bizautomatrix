@@ -54,11 +54,27 @@ function MiniChart({ entries, field }: { entries: RankEntry[]; field: "mapRank" 
   );
 }
 
+function generateKeywordSuggestions(businessName: string, city: string, industry: string): string[] {
+  const terms = [businessName, industry, "near me"].filter(Boolean);
+  const locs = [city, `${city} Bangladesh`, ""].filter(Boolean);
+  const suggestions: string[] = [];
+  for (const t of terms) {
+    for (const l of locs) {
+      const kw = [t, l].filter(Boolean).join(" ").toLowerCase().trim();
+      if (kw && !suggestions.includes(kw)) suggestions.push(kw);
+    }
+  }
+  return suggestions.slice(0, 12);
+}
+
 export default function AdminRankTracker() {
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState("");
   const [entries, setEntries] = useState<RankEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [clientMeta, setClientMeta] = useState<{ businessName: string; city: string; industry: string } | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [form, setForm] = useState({ keyword: "", productUrl: "", mapRank: "", websiteRank: "", recordedAt: new Date().toISOString().slice(0, 10) });
   const [saving, setSaving] = useState(false);
@@ -69,11 +85,19 @@ export default function AdminRankTracker() {
   }, []);
 
   useEffect(() => {
-    if (!selectedClient) { setEntries([]); return; }
+    if (!selectedClient) { setEntries([]); setClientMeta(null); setSuggestions([]); return; }
     setLoading(true);
     fetch(`/api/admin/rank-tracker?clientId=${selectedClient}`)
       .then(r => r.json())
       .then(d => { setEntries(d.entries ?? []); setLoading(false); });
+    // Fetch client info for keyword suggestions
+    fetch(`/api/admin/clients/${selectedClient}`).then(r => r.json()).then(d => {
+      if (d.client) {
+        const meta = { businessName: d.client.businessName ?? "", city: d.client.city ?? "", industry: d.client.industry ?? "" };
+        setClientMeta(meta);
+        setSuggestions(generateKeywordSuggestions(meta.businessName, meta.city, meta.industry));
+      }
+    }).catch(() => {});
   }, [selectedClient]);
 
   async function addEntry() {
@@ -123,6 +147,29 @@ export default function AdminRankTracker() {
 
       {selectedClient && (
         <>
+          {/* Keyword Suggestions */}
+          {suggestions.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">💡 Keyword Suggestions</h2>
+                <button onClick={() => setShowSuggestions(!showSuggestions)} className="text-xs text-blue-600 hover:underline">
+                  {showSuggestions ? "Hide" : "Show suggestions"}
+                </button>
+              </div>
+              {showSuggestions && (
+                <div className="flex flex-wrap gap-2">
+                  {suggestions.map(kw => (
+                    <button key={kw} onClick={() => setForm(f => ({ ...f, keyword: kw }))}
+                      className="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors border border-blue-200">
+                      + {kw}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!showSuggestions && <p className="text-xs text-gray-400">Click to see {suggestions.length} auto-generated keyword ideas based on business name + city.</p>}
+            </div>
+          )}
+
           {/* Add entry form */}
           <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Add Rank Entry</h2>
