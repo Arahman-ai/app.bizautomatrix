@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "⊞", section: null },
@@ -24,8 +24,20 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (pathname === "/onboarding") return;
+    fetch("/api/client/profile")
+      .then(r => r.json())
+      .then(d => {
+        if (d.client && d.client.setupComplete === false) {
+          router.replace("/onboarding");
+        }
+      });
+  }, [pathname, router]);
 
   const SidebarContent = ({ onNav }: { onNav?: () => void }) => (
     <>

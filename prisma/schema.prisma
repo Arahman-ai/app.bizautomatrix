@@ -90,6 +90,7 @@ model Client {
 
   napConsistent  Boolean         @default(false)
   napNotes       String?
+  setupComplete  Boolean         @default(false)
 
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   leads          Lead[]
