@@ -196,7 +196,23 @@ export default function AdminRankTracker() {
                   <div key={kw} className="bg-white rounded-2xl border border-gray-200 p-5">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-gray-900">🔍 {kw}</h3>
-                      <span className="text-xs text-gray-400">{kwEntries.length} entries</span>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`https://www.google.com/maps/search/${encodeURIComponent(kw)}`}
+                          target="_blank" rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors"
+                        >
+                          📍 Check Maps
+                        </a>
+                        <a
+                          href={`https://www.google.com/search?q=${encodeURIComponent(kw)}`}
+                          target="_blank" rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-100 transition-colors"
+                        >
+                          🌐 Check Web
+                        </a>
+                        <span className="text-xs text-gray-400">{kwEntries.length} entries</span>
+                      </div>
                     </div>
 
                     {/* Current + change cards */}
