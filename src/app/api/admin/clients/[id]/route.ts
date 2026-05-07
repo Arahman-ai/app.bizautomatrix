@@ -41,6 +41,9 @@ export async function DELETE(
   const client = await prisma.client.findUnique({ where: { id }, select: { userId: true } });
   if (!client) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const user = await prisma.user.findUnique({ where: { id: client.userId }, select: { isMaster: true } });
+  if (user?.isMaster) return NextResponse.json({ error: "Cannot delete master account." }, { status: 403 });
+
   await prisma.client.delete({ where: { id } });
   await prisma.user.delete({ where: { id: client.userId } });
 

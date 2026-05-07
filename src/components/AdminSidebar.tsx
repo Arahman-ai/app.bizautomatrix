@@ -66,6 +66,12 @@ export default function AdminSidebar({ user }: { user: { name?: string | null; e
       <div className="p-4 border-t border-gray-700">
         <p className="text-xs text-gray-400 truncate">{user?.name || user?.email}</p>
         <Link
+          href="/dashboard"
+          className="text-xs text-blue-400 hover:text-blue-300 mt-2 block"
+        >
+          🔀 Switch to Client View
+        </Link>
+        <Link
           href="/api/auth/signout"
           className="text-xs text-red-400 hover:text-red-300 mt-1 block"
         >

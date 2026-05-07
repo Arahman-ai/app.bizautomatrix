@@ -71,6 +71,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name}</p>
           <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
         </div>
+        {(session?.user as { role?: string })?.role === "ADMIN" && (
+          <Link
+            href="/admin"
+            className="w-full text-left px-3 py-2 text-sm text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-2 mb-1"
+          >
+            <span>🛡️</span> Switch to Admin
+          </Link>
+        )}
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
