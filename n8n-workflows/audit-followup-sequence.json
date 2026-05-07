@@ -1,0 +1,164 @@
+{
+  "name": "Audit Follow-up Email Sequence (4 emails over 7 days)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "audit-followup",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true }) }}"
+      },
+      "id": "respond-immediately",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@bizautomatrix.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Your Free Business Audit is Ready — {{ $json.businessName }}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333'><h2 style='color:#2563eb'>Hi {{ $json.ownerName || $json.businessName }},</h2><p>Your free business audit has been submitted. Here's a quick summary of what we found:</p><div style='background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:16px;margin:16px 0'><p style='font-weight:bold;color:#dc2626;margin:0 0 8px'>⚠️ Your business may be invisible on Google Maps</p><p style='color:#7f1d1d;margin:0;font-size:14px'>Most local businesses are missing key optimization that prevents them from appearing in search results. Your competitors with more reviews and a complete profile are taking your customers.</p></div><p><strong>The 3 biggest issues we fix for businesses like yours:</strong></p><ol style='color:#555'><li style='margin-bottom:8px'><strong>Google Business Profile not optimized</strong> — missing category, description, photos</li><li style='margin-bottom:8px'><strong>Too few Google reviews</strong> — competitors with 50+ reviews outrank you</li><li style='margin-bottom:8px'><strong>Not listed on key directories</strong> — Google can't verify your business location</li></ol><p>We can fix all three of these for you — automatically.</p><div style='text-align:center;margin:24px 0'><a href='{{ $json.appUrl }}/#audit' style='background:#2563eb;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block'>See Your Full Audit Score →</a></div><p style='color:#888;font-size:13px'>Questions? Reply to this email or call us at +1 (404) 203-7674</p><p style='color:#888;font-size:13px'>— The BizAutomatrix Team</p></body></html>"
+      },
+      "id": "email-day0",
+      "name": "Email Day 0 — Audit Received",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait-day1",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@bizautomatrix.com",
+        "toEmail": "={{ $('Webhook Trigger').item.json.email }}",
+        "subject": "The #1 reason {{ $('Webhook Trigger').item.json.businessName }} isn't showing on Google Maps",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333'><h2 style='color:#2563eb'>Hi {{ $('Webhook Trigger').item.json.ownerName || $('Webhook Trigger').item.json.businessName }},</h2><p>Yesterday you submitted your free audit. Today I want to share the #1 thing stopping most local businesses from appearing on Google Maps.</p><h3 style='color:#dc2626'>It's reviews. Specifically, the gap between you and your competitors.</h3><p>Here's what happens:</p><ul style='color:#555'><li style='margin-bottom:8px'>A customer searches \"[your service] near me\" on Google</li><li style='margin-bottom:8px'>Google shows the <strong>3 businesses with the most reviews</strong> in the Map Pack</li><li style='margin-bottom:8px'>If you have fewer reviews than your competitors, <strong>you don't appear</strong></li></ul><div style='background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin:16px 0'><p style='font-weight:bold;color:#1d4ed8;margin:0 0 8px'>💡 Real example from our clients</p><p style='color:#1e40af;margin:0;font-size:14px'>One of our clients in Chittagong had 8 reviews. Their top competitor had 44. After 30 days of automated review requests through BizAutomatrix, they reached 31 reviews and moved from position #12 to #4 on Google Maps.</p></div><p>Our automated review request system sends a personalized email to every customer asking for a review — without you lifting a finger.</p><div style='text-align:center;margin:24px 0'><a href='{{ $('Webhook Trigger').item.json.appUrl }}/#pricing' style='background:#2563eb;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block'>See How It Works →</a></div><p style='color:#888;font-size:13px'>— The BizAutomatrix Team</p></body></html>"
+      },
+      "id": "email-day1",
+      "name": "Email Day 1 — Reviews Gap",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 380]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "days"
+      },
+      "id": "wait-day3",
+      "name": "Wait 2 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1120, 380]
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@bizautomatrix.com",
+        "toEmail": "={{ $('Webhook Trigger').item.json.email }}",
+        "subject": "Your Google Business Profile is probably costing you customers",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333'><h2 style='color:#2563eb'>Hi {{ $('Webhook Trigger').item.json.ownerName || $('Webhook Trigger').item.json.businessName }},</h2><p>Quick question: when did you last update your Google Business Profile?</p><p>If the answer is \"never\" or \"I'm not sure I have one\" — you're not alone. Most business owners set it up once and forget it. But Google uses your profile to decide whether to show you in search results.</p><p><strong>Here's what a fully optimized GBP looks like vs. what most businesses have:</strong></p><table style='width:100%;border-collapse:collapse;margin:16px 0'><tr style='background:#f9fafb'><th style='text-align:left;padding:10px;border:1px solid #e5e7eb;font-size:13px'>Factor</th><th style='text-align:center;padding:10px;border:1px solid #e5e7eb;font-size:13px'>Most Businesses</th><th style='text-align:center;padding:10px;border:1px solid #e5e7eb;font-size:13px'>After BizAutomatrix</th></tr><tr><td style='padding:10px;border:1px solid #e5e7eb;font-size:13px'>Business category</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#dc2626'>Wrong or missing</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#16a34a'>✓ Correct</td></tr><tr style='background:#f9fafb'><td style='padding:10px;border:1px solid #e5e7eb;font-size:13px'>Description</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#dc2626'>Blank or generic</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#16a34a'>✓ Keyword-rich</td></tr><tr><td style='padding:10px;border:1px solid #e5e7eb;font-size:13px'>Photos</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#dc2626'>0–2 photos</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#16a34a'>✓ 10+ photos</td></tr><tr style='background:#f9fafb'><td style='padding:10px;border:1px solid #e5e7eb;font-size:13px'>Services list</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#dc2626'>Not added</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#16a34a'>✓ Complete</td></tr><tr><td style='padding:10px;border:1px solid #e5e7eb;font-size:13px'>Weekly posts</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#dc2626'>Never</td><td style='padding:10px;border:1px solid #e5e7eb;text-align:center;color:#16a34a'>✓ Automated</td></tr></table><p>Fixing your GBP is the fastest way to improve your Google Maps ranking — often within 2–4 weeks.</p><div style='text-align:center;margin:24px 0'><a href='{{ $('Webhook Trigger').item.json.appUrl }}/#pricing' style='background:#2563eb;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block'>Get Your GBP Optimized →</a></div><p style='color:#888;font-size:13px'>— The BizAutomatrix Team</p></body></html>"
+      },
+      "id": "email-day3",
+      "name": "Email Day 3 — GBP Optimization",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1340, 380]
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      },
+      "id": "wait-day7",
+      "name": "Wait 4 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1560, 380]
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@bizautomatrix.com",
+        "toEmail": "={{ $('Webhook Trigger').item.json.email }}",
+        "subject": "Last thing: here's what 90 days with BizAutomatrix looks like",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333'><h2 style='color:#2563eb'>Hi {{ $('Webhook Trigger').item.json.ownerName || $('Webhook Trigger').item.json.businessName }},</h2><p>I wanted to share a realistic picture of what 90 days of BizAutomatrix looks like for a local business.</p><div style='background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:20px;margin:16px 0'><h3 style='color:#16a34a;margin:0 0 12px'>📅 90-Day Roadmap</h3><div style='margin-bottom:10px'><strong style='color:#15803d'>Week 1–2:</strong><span style='color:#555'> GBP fully optimized, review requests live, citations started</span></div><div style='margin-bottom:10px'><strong style='color:#15803d'>Month 1:</strong><span style='color:#555'> 10–20 new Google reviews, measurable rank movement begins</span></div><div style='margin-bottom:10px'><strong style='color:#15803d'>Month 2:</strong><span style='color:#555'> Appearing in top 10 for target keywords, more calls and inquiries</span></div><div><strong style='color:#15803d'>Month 3:</strong><span style='color:#555'> Top 5 for primary keywords, consistent review flow, competitor gap closing</span></div></div><p>We back this with a <strong>30-day money-back guarantee</strong>. If you don't see improvement in your first 30 days, we refund you — no questions asked.</p><p>Plans start at <strong>$49/month</strong>. That's less than one lost customer.</p><div style='text-align:center;margin:24px 0'><a href='{{ $('Webhook Trigger').item.json.appUrl }}/#pricing' style='background:#16a34a;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;margin-right:10px'>Start Today — $49/mo →</a></div><p style='color:#555;font-size:14px'>Or just reply to this email — I'll personally answer any questions you have.</p><p style='color:#888;font-size:13px'>— Arifur Rahman, BizAutomatrix<br>📧 info@bizautomatrix.com</p><hr style='border:none;border-top:1px solid #e5e7eb;margin:20px 0'><p style='color:#9ca3af;font-size:11px'>You received this because you submitted a free audit at bizautomatrix.com. <a href='#' style='color:#9ca3af'>Unsubscribe</a></p></body></html>"
+      },
+      "id": "email-day7",
+      "name": "Email Day 7 — Final CTA",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1780, 380]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          { "node": "Respond OK", "type": "main", "index": 0 },
+          { "node": "Email Day 0 — Audit Received", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Email Day 0 — Audit Received": {
+      "main": [[{ "node": "Wait 1 Day", "type": "main", "index": 0 }]]
+    },
+    "Wait 1 Day": {
+      "main": [[{ "node": "Email Day 1 — Reviews Gap", "type": "main", "index": 0 }]]
+    },
+    "Email Day 1 — Reviews Gap": {
+      "main": [[{ "node": "Wait 2 Days", "type": "main", "index": 0 }]]
+    },
+    "Wait 2 Days": {
+      "main": [[{ "node": "Email Day 3 — GBP Optimization", "type": "main", "index": 0 }]]
+    },
+    "Email Day 3 — GBP Optimization": {
+      "main": [[{ "node": "Wait 4 Days", "type": "main", "index": 0 }]]
+    },
+    "Wait 4 Days": {
+      "main": [[{ "node": "Email Day 7 — Final CTA", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "_readme": {
+    "setup": [
+      "1. Import this JSON into n8n (Workflows → Import)",
+      "2. Configure the Email Send nodes with your SMTP credentials",
+      "3. Activate the workflow",
+      "4. Set N8N_LEAD_FOLLOWUP_WEBHOOK_URL in your .env to this webhook URL",
+      "5. The audit API (/api/audit) already triggers this webhook on every new lead"
+    ],
+    "emails": [
+      "Day 0: Confirmation + audit score link",
+      "Day 1: Reviews gap education",
+      "Day 3: GBP optimization education",
+      "Day 7: Final offer + 30-day guarantee"
+    ]
+  }
+}

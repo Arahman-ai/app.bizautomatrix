@@ -1,0 +1,98 @@
+{
+  "name": "Review Auto-Reply AI (Claude)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "review-auto-reply",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "notes": "Expects: { reviewerName, reviewText, rating, businessName, businessType }"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-haiku-4-5-20251001",
+          "max_tokens": 256,
+          "messages": [
+            {
+              "role": "user",
+              "content": "You are writing a professional, warm reply to a Google review for {{ $json.businessName }} ({{ $json.businessType }}).\n\nReviewer name: {{ $json.reviewerName }}\nRating: {{ $json.rating }} stars\nReview text: {{ $json.reviewText }}\n\nWrite a reply that:\n- Starts by thanking the reviewer by first name\n- Acknowledges specific points they mentioned\n- For 4-5 star reviews: express genuine gratitude and invite them back\n- For 1-3 star reviews: apologize sincerely, take responsibility, offer to make it right, provide contact info (info@bizautomatrix.com)\n- Keeps the tone professional, human, and not robotic\n- Stays under 100 words\n- Does NOT include subject lines, greetings like 'Dear', or sign-offs like 'Regards'\n\nReturn only the reply text, nothing else."
+            }
+          ]
+        }
+      },
+      "id": "claude-api",
+      "name": "Claude AI — Generate Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst replyText = response?.content?.[0]?.text ?? 'Thank you for your review!';\nreturn [{ json: { reply: replyText, reviewerName: $('Webhook Trigger').item.json.reviewerName, rating: $('Webhook Trigger').item.json.rating, originalReview: $('Webhook Trigger').item.json.reviewText } }];"
+      },
+      "id": "extract-reply",
+      "name": "Extract Reply Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ reply: $json.reply, reviewerName: $json.reviewerName, rating: $json.rating }) }}"
+      },
+      "id": "respond",
+      "name": "Respond with Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{ "node": "Claude AI — Generate Reply", "type": "main", "index": 0 }]]
+    },
+    "Claude AI — Generate Reply": {
+      "main": [[{ "node": "Extract Reply Text", "type": "main", "index": 0 }]]
+    },
+    "Extract Reply Text": {
+      "main": [[{ "node": "Respond with Reply", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "_readme": {
+    "setup": [
+      "1. Import this JSON into n8n (Workflows → Import)",
+      "2. Set ANTHROPIC_API_KEY as an n8n environment variable",
+      "3. Activate the workflow",
+      "4. Call the webhook with POST body: { reviewerName, reviewText, rating, businessName, businessType }",
+      "5. The webhook returns: { reply: '...generated reply...', reviewerName, rating }"
+    ],
+    "model": "Uses claude-haiku-4-5 (fast + cheap). Upgrade to claude-sonnet-4-6 for higher quality replies.",
+    "usage": "Can be triggered from admin portal when a new review comes in. Admin reviews the AI reply, edits if needed, then posts to Google Business Profile manually or via GBP API."
+  }
+}

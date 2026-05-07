@@ -5,33 +5,33 @@ import Link from "next/link";
 const FEATURES = [
   {
     icon: "⭐",
-    title: "Review Management",
-    desc: "Automatically request reviews, monitor feedback, and respond to protect your reputation.",
+    title: "Automated Review Requests",
+    desc: "Send review request emails and SMS to every customer automatically. More 5-star reviews = higher rank on Google Maps.",
   },
   {
     icon: "📍",
-    title: "Google Business Profile",
-    desc: "Optimize your listing so local customers find you first on Google Maps and Search.",
+    title: "Google Business Profile Audit",
+    desc: "We score your GBP across 10 ranking factors and fix every gap — category, description, photos, hours, and posts.",
   },
   {
-    icon: "📱",
-    title: "Social Media Automation",
-    desc: "AI-generated weekly posts drafted and scheduled — you just approve and publish.",
+    icon: "📈",
+    title: "Rank Tracker",
+    desc: "Weekly tracking of where your business ranks on Google Maps and web search for your target keywords.",
   },
   {
-    icon: "📊",
-    title: "Analytics Dashboard",
-    desc: "See all your marketing performance in one place with monthly automated reports.",
+    icon: "📋",
+    title: "Citation Building",
+    desc: "Get listed on 30+ business directories with consistent NAP data — one of Google's strongest local trust signals.",
   },
   {
-    icon: "💳",
-    title: "Ad Campaign Assistance",
-    desc: "Get AI-crafted Meta and TikTok ad copy with audience and budget suggestions.",
+    icon: "🏆",
+    title: "Competitor Analysis",
+    desc: "See exactly how you compare against local competitors on reviews, rankings, and GBP optimization.",
   },
   {
-    icon: "🔔",
-    title: "Lead Tracking",
-    desc: "Never lose a lead. Every inquiry is captured, tracked, and followed up automatically.",
+    icon: "📄",
+    title: "Monthly SEO Reports",
+    desc: "Professional PDF reports showing rank movement, review growth, and citation progress — shareable with stakeholders.",
   },
 ];
 
@@ -39,17 +39,17 @@ const STEPS = [
   {
     step: "1",
     title: "Get Your Free Audit",
-    desc: "Submit your business info and we analyze your entire online presence within 24 hours.",
+    desc: "Submit your business in 60 seconds. See your instant visibility score — and exactly what's hurting your ranking.",
   },
   {
     step: "2",
-    title: "Review Your Report",
-    desc: "See exactly where you're losing customers and what to fix — with a clear action plan.",
+    title: "We Build Your SEO Foundation",
+    desc: "We optimize your Google Business Profile, fix your NAP, build citations, and set up automated review requests.",
   },
   {
     step: "3",
-    title: "We Handle Everything",
-    desc: "Activate your plan and our automations take over — reviews, posts, reports, and more.",
+    title: "Watch Your Ranking Climb",
+    desc: "Weekly rank tracking shows your progress. More reviews flow in automatically. Clients see results in 60–90 days.",
   },
 ];
 
@@ -105,12 +105,16 @@ export default function Home() {
             For Local Business Owners
           </p>
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Grow Your Business on Autopilot
+            Your Customers Are Searching.<br />Are They Finding You?
           </h1>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            BizAutomatrix handles your reviews, social media, Google profile, and ads
-            — so you can focus on running your business.
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Most local businesses are invisible on Google Maps and web search — while competitors with more reviews and better profiles take every customer. BizAutomatrix fixes that.
           </p>
+          <div className="flex flex-wrap justify-center gap-3 mb-8 text-sm text-blue-100">
+            <span className="bg-blue-500/40 px-4 py-2 rounded-full">✓ More Google reviews — automatically</span>
+            <span className="bg-blue-500/40 px-4 py-2 rounded-full">✓ Higher rank on Google Maps</span>
+            <span className="bg-blue-500/40 px-4 py-2 rounded-full">✓ See exactly where you're losing customers</span>
+          </div>
           <a
             href="#audit"
             className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-50 transition-colors shadow-lg"
@@ -123,20 +127,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-blue-900 text-white py-6 px-4">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold">500+</div>
-            <div className="text-blue-300 text-sm">Businesses Helped</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold">4.9★</div>
-            <div className="text-blue-300 text-sm">Average Rating</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold">3x</div>
-            <div className="text-blue-300 text-sm">More Online Visibility</div>
+      {/* Problem bar */}
+      <section className="bg-blue-900 text-white py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-center text-blue-300 text-sm font-medium uppercase tracking-widest mb-5">The problem most local businesses face</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="bg-blue-800/60 rounded-xl p-5">
+              <div className="text-3xl mb-2">😤</div>
+              <p className="font-semibold text-white mb-1">Invisible on Google Maps</p>
+              <p className="text-blue-300 text-sm">Competitors with more reviews rank higher and steal your customers — even if your business is better.</p>
+            </div>
+            <div className="bg-blue-800/60 rounded-xl p-5">
+              <div className="text-3xl mb-2">⏰</div>
+              <p className="font-semibold text-white mb-1">No Time for Marketing</p>
+              <p className="text-blue-300 text-sm">You&apos;re running your business. Posting on social media, asking for reviews, optimizing your profile — it never gets done.</p>
+            </div>
+            <div className="bg-blue-800/60 rounded-xl p-5">
+              <div className="text-3xl mb-2">📉</div>
+              <p className="font-semibold text-white mb-1">Don&apos;t Know What&apos;s Wrong</p>
+              <p className="text-blue-300 text-sm">Without a clear audit, you&apos;re guessing. You don&apos;t know which specific issues are costing you customers every day.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -146,7 +156,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">How It Works</h2>
-            <p className="text-gray-600 text-lg">Three steps to put your marketing on autopilot.</p>
+            <p className="text-gray-600 text-lg">From invisible to ranking — in 3 steps.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {STEPS.map((s) => (
@@ -167,11 +177,10 @@ export default function Home() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Get Your Free Business Audit
+              Find Out Why You&apos;re Not Ranking
             </h2>
             <p className="text-gray-600 text-lg">
-              We&apos;ll analyze your online presence and show you exactly what&apos;s
-              costing you customers — for free.
+              Get your instant visibility score and a clear breakdown of what&apos;s stopping customers from finding you on Google.
             </p>
             <div className="flex items-center justify-center gap-6 mt-5 flex-wrap">
               <a
@@ -353,15 +362,15 @@ export default function Home() {
       {/* CTA */}
       <section className="bg-blue-600 text-white py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Put Your Marketing on Autopilot?</h2>
+          <h2 className="text-3xl font-bold mb-4">Your Competitors Are Getting Found. You Should Be Too.</h2>
           <p className="text-blue-100 text-lg mb-8">
-            Start with a free audit — no credit card required.
+            Get your free audit in 60 seconds and see your exact visibility score.
           </p>
           <a
             href="#audit"
             className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-50 transition-colors"
           >
-            Start With a Free Audit
+            Get My Free Audit Score →
           </a>
         </div>
       </section>

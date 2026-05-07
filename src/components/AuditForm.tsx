@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   businessName: string;
@@ -26,6 +27,7 @@ const INDUSTRIES = [
 ];
 
 export default function AuditForm() {
+  const router = useRouter();
   const [form, setForm] = useState<FormData>({
     businessName: "",
     ownerName: "",
@@ -36,7 +38,6 @@ export default function AuditForm() {
     industry: "",
   });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (
@@ -61,28 +62,13 @@ export default function AuditForm() {
 
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
-      setSuccess(true);
+      router.push(`/audit/result/${data.leadId}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
-        <div className="text-5xl mb-4">🎉</div>
-        <h3 className="text-2xl font-bold text-green-800 mb-2">
-          Your Free Audit is Submitted!
-        </h3>
-        <p className="text-green-700">
-          We&apos;ll analyze your business online presence and send your personalized
-          report to <strong>{form.email}</strong> within 24 hours.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

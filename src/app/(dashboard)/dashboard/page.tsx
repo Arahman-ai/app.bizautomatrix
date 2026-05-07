@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import NextBestAction from "@/components/NextBestAction";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -69,6 +70,9 @@ export default async function DashboardPage() {
         <StatCard title="Click Rate" value={reviewRequestsThisMonth > 0 ? `${Math.round((reviewRequestsClicked / reviewRequestsThisMonth) * 100)}%` : "—"} sub="Of requests sent" color="blue" />
         <StatCard title="Plan" value={client?.plan ?? "FREE"} sub="Upgrade anytime" color="purple" />
       </div>
+
+      {/* Next Best Action */}
+      <NextBestAction />
 
       {/* Quick Actions */}
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
