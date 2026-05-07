@@ -354,6 +354,57 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-3">FAQ</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Common Questions</h2>
+            <p className="text-gray-500 text-lg">Everything you need to know before getting started.</p>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: "How long does it take to see results?",
+                a: "Most clients see measurable rank improvements within 30–60 days. Full results (top 3 Maps position) typically take 60–90 days depending on your market competitiveness.",
+              },
+              {
+                q: "Do I need to sign a contract?",
+                a: "No contracts. All plans are month-to-month. You can upgrade, downgrade, or cancel anytime from your dashboard.",
+              },
+              {
+                q: "What is a Google Business Profile audit?",
+                a: "We score your GBP across 10 ranking factors — completeness, categories, photos, reviews, posts, and more — then give you a checklist of exactly what to fix.",
+              },
+              {
+                q: "How do review requests work?",
+                a: "You enter a customer's name and email in your dashboard. We send them a branded email with a direct link to your Google review page. You can track who clicked and who left a review.",
+              },
+              {
+                q: "Can I upgrade or downgrade my plan later?",
+                a: "Yes. You can change your plan at any time from the Billing page. Upgrades take effect immediately.",
+              },
+              {
+                q: "What happens to my data if I cancel?",
+                a: "Your data is retained for 30 days after cancellation so you can export it. After 30 days it is permanently deleted.",
+              },
+              {
+                q: "Do you support multiple locations?",
+                a: "Multi-location support is included in the Pro plan. Contact us if you need a custom setup for agencies or franchises.",
+              },
+            ].map(({ q, a }) => (
+              <details key={q} className="bg-white border border-gray-200 rounded-2xl group">
+                <summary className="flex justify-between items-center px-6 py-5 cursor-pointer font-semibold text-gray-900 list-none">
+                  {q}
+                  <span className="text-gray-400 group-open:rotate-45 transition-transform text-xl leading-none">+</span>
+                </summary>
+                <p className="px-6 pb-5 text-gray-600 text-sm leading-relaxed">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="bg-blue-600 text-white py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
