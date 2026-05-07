@@ -38,7 +38,7 @@ export async function PATCH(req: NextRequest) {
   });
 
   // Fire n8n onboarding notification when setup completes for first time
-  if (setupComplete === true && !user.client.setupComplete) {
+  if (setupComplete === true && !(user.client as any).setupComplete) {
     const n8nUrl = process.env.N8N_WEBHOOK_URL;
     if (n8nUrl) {
       fetch(`${n8nUrl}/client-onboarded`, {
