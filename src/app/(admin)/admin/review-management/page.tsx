@@ -73,10 +73,48 @@ const PRIORITY_STYLES: Record<string, string> = {
   LOW: "bg-slate-50 text-slate-700 border-slate-200",
 };
 
+function parseCustomerCsv(input: string) {
+  return input
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name = "", email = "", phone = ""] = line.split(",").map((part) => part.trim());
+      return { name, email, phone };
+    })
+    .filter((row) => row.name || row.email || row.phone);
+}
+
+function normalizeCustomerCsv(input: string) {
+  const rows = parseCustomerCsv(input);
+  if (!rows.length) return "customerName,customerEmail,customerPhone";
+  return ["customerName,customerEmail,customerPhone", ...rows.map((row) => `${row.name},${row.email},${row.phone}`)].join("\n");
+}
+
+function buildTemplates(businessName: string, link: string) {
+  const reviewLink = link || "{{review_link}}";
+  return {
+    emailSubject: `Quick favor for ${businessName}`,
+    emailBody: `Hi {{customer_name}},
+
+Thank you for choosing ${businessName}. If you had a good experience, would you mind leaving us a quick Google review?
+
+${reviewLink}
+
+It takes less than a minute and helps other customers find us.
+
+Thank you,
+${businessName}`,
+    whatsapp: `Hi {{customer_name}}, thank you for choosing ${businessName}. If you had a good experience, could you leave us a quick Google review? ${reviewLink}`,
+    sms: `Thanks for choosing ${businessName}. Could you leave us a quick Google review? ${reviewLink}`,
+  };
+}
+
 export default function ReviewManagementPage() {
   const [data, setData] = useState<ApiData | null>(null);
   const [clientId, setClientId] = useState("");
   const [reviewLink, setReviewLink] = useState("");
+  const [customerCsv, setCustomerCsv] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [creatingTasks, setCreatingTasks] = useState(false);
@@ -142,11 +180,30 @@ export default function ReviewManagementPage() {
     setCreatingTasks(false);
   }
 
+  async function copyText(label: string, text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setMessage(`${label} copied.`);
+    } catch {
+      setMessage(`Could not copy ${label}. Select the text manually.`);
+    }
+  }
+
   const selectedClient = data?.selectedClient;
   const stats = data?.stats;
   const openTasks = data?.openReviewTasks || [];
   const recentRequests = data?.requests || [];
   const setupReady = Boolean(selectedClient?.googleReviewLink);
+  const activeReviewLink = reviewLink || selectedClient?.googleReviewLink || "";
+  const qrUrl = activeReviewLink
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(activeReviewLink)}`
+    : "";
+  const parsedCustomers = useMemo(() => parseCustomerCsv(customerCsv), [customerCsv]);
+  const normalizedCsv = useMemo(() => normalizeCustomerCsv(customerCsv), [customerCsv]);
+  const templates = useMemo(
+    () => buildTemplates(selectedClient?.businessName || "your business", activeReviewLink),
+    [selectedClient?.businessName, activeReviewLink]
+  );
   const clickSummary = useMemo(() => {
     if (!stats) return "0 clicked from 0 sent";
     return `${stats.clicked} clicked from ${stats.sent} sent`;
@@ -263,6 +320,107 @@ export default function ReviewManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+            <section className="bg-white border border-gray-200 rounded-lg p-5">
+              <h2 className="text-lg font-semibold text-gray-900">Offline Review QR</h2>
+              <p className="text-sm text-gray-500 mt-1 mb-4">
+                Use this for counters, invoices, packaging, service handover sheets, and printed cards.
+              </p>
+              {qrUrl ? (
+                <div className="flex flex-col items-start gap-4">
+                  <img src={qrUrl} alt="Google review QR code" className="h-40 w-40 rounded-lg border border-gray-100 bg-white p-2" />
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyText("Review link", activeReviewLink)}
+                      className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                      Copy Review Link
+                    </button>
+                    <a
+                      href={qrUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+                    >
+                      Open QR
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
+                  Save the Google review link first to generate a QR code.
+                </div>
+              )}
+            </section>
+
+            <section className="xl:col-span-2 bg-white border border-gray-200 rounded-lg p-5">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Customer Import Prep</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Paste one customer per line as name, email, phone. This prepares the list for review before any sending step.
+                  </p>
+                </div>
+                <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                  {parsedCustomers.length} rows
+                </span>
+              </div>
+              <textarea
+                value={customerCsv}
+                onChange={(event) => setCustomerCsv(event.target.value)}
+                className="min-h-32 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                placeholder={"John Smith,john@example.com,+1 555 000 0000\nJane Doe,jane@example.com,+1 555 111 1111"}
+              />
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyText("Clean CSV", normalizedCsv)}
+                  className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  Copy Clean CSV
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerCsv("")}
+                  className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Clear
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <section className="bg-white border border-gray-200 rounded-lg p-5 mb-6">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Review Request Templates</h2>
+                <p className="text-sm text-gray-500 mt-1">Copy these into email, WhatsApp, SMS, or n8n before sending to real customers.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  copyText(
+                    "All templates",
+                    `Subject: ${templates.emailSubject}\n\nEmail:\n${templates.emailBody}\n\nWhatsApp:\n${templates.whatsapp}\n\nSMS:\n${templates.sms}`
+                  )
+                }
+                className="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+              >
+                Copy All
+              </button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <TemplateCard
+                title="Email"
+                body={`Subject: ${templates.emailSubject}\n\n${templates.emailBody}`}
+                onCopy={() => copyText("Email template", `Subject: ${templates.emailSubject}\n\n${templates.emailBody}`)}
+              />
+              <TemplateCard title="WhatsApp" body={templates.whatsapp} onCopy={() => copyText("WhatsApp template", templates.whatsapp)} />
+              <TemplateCard title="SMS" body={templates.sms} onCopy={() => copyText("SMS template", templates.sms)} />
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
             <section className="xl:col-span-2 bg-white border border-gray-200 rounded-lg p-5">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
@@ -359,6 +517,34 @@ function MetricCard({
       <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{label}</p>
       <p className="text-2xl font-bold mt-2">{value}</p>
       {helper && <p className="text-xs mt-1 opacity-80">{helper}</p>}
+    </div>
+  );
+}
+
+function TemplateCard({
+  title,
+  body,
+  onCopy,
+}: {
+  title: string;
+  body: string;
+  onCopy: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+        <button
+          type="button"
+          onClick={onCopy}
+          className="rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100"
+        >
+          Copy
+        </button>
+      </div>
+      <pre className="max-h-56 overflow-auto whitespace-pre-wrap rounded-md bg-white p-3 text-xs leading-5 text-gray-700">
+        {body}
+      </pre>
     </div>
   );
 }
