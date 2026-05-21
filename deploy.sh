@@ -1,36 +1,58 @@
 #!/bin/bash
 # BizAutomatrix deployment script
-# Run this on the VPS after SSH login
+# Run this on the VPS/Hostinger terminal after SSH login.
 
-set -e
+set -euo pipefail
 
-echo "=== Installing Node.js 20 ==="
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
+APP_NAME="bizautomatrix"
+APP_DIR="/var/www/bizautomatrix"
+REPO_URL="https://github.com/Arahman-ai/app.bizautomatrix.git"
+BRANCH="main"
 
-echo "=== Installing PM2 ==="
-sudo npm install -g pm2
+echo "=== Installing Node.js 20 if needed ==="
+if ! command -v node >/dev/null 2>&1; then
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+fi
 
-echo "=== Installing Nginx ==="
-sudo apt-get install -y nginx
+echo "=== Installing PM2 if needed ==="
+if ! command -v pm2 >/dev/null 2>&1; then
+  sudo npm install -g pm2
+fi
 
-echo "=== Installing Certbot ==="
-sudo apt-get install -y certbot python3-certbot-nginx
+echo "=== Installing Nginx and Certbot if needed ==="
+sudo apt-get update
+sudo apt-get install -y nginx certbot python3-certbot-nginx
 
-echo "=== Cloning repository ==="
-cd /var/www
-sudo git clone https://github.com/bizautomatrix/app.git bizautomatrix || true
-cd bizautomatrix
+echo "=== Preparing app directory ==="
+sudo mkdir -p /var/www
+if [ ! -d "$APP_DIR/.git" ]; then
+  sudo git clone "$REPO_URL" "$APP_DIR"
+fi
+sudo chown -R "$USER":"$USER" "$APP_DIR"
+cd "$APP_DIR"
+
+echo "=== Pulling latest code ==="
+git fetch origin "$BRANCH"
+git checkout "$BRANCH"
+git pull --ff-only origin "$BRANCH"
 
 echo "=== Installing dependencies ==="
-sudo npm install
+npm install
+
+echo "=== Applying database migrations ==="
+npx prisma migrate deploy
+npx prisma generate
 
 echo "=== Building app ==="
-sudo npm run build
+npm run build
 
-echo "=== Starting app with PM2 ==="
-sudo pm2 start npm --name "bizautomatrix" -- start
-sudo pm2 startup
-sudo pm2 save
+echo "=== Starting or restarting app with PM2 ==="
+if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
+  pm2 restart "$APP_NAME"
+else
+  pm2 start npm --name "$APP_NAME" -- start
+fi
+pm2 save
 
 echo "=== Done! App running on port 3000 ==="
