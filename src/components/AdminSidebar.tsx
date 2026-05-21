@@ -10,12 +10,13 @@ const NAV = [
   { href: "/admin/leads", label: "Leads", icon: "🎯", section: null },
   { href: "/admin/clients", label: "Clients", icon: "👥", section: null },
   { href: "/admin/email-template", label: "Email Template", icon: "✉️", section: null },
+  { href: "/admin/site-audit", label: "Site Audit", icon: "⚡", section: "SEO Tools" },
+  { href: "/admin/seo-tasks", label: "SEO Tasks", icon: "✅", section: "SEO Tools" },
+  { href: "/admin/review-management", label: "Review Mgmt", icon: "R", section: "SEO Tools" },
   { href: "/admin/rank-tracker", label: "Rank Tracker", icon: "📈", section: "SEO Tools" },
   { href: "/admin/gbp-audit", label: "GBP Audit", icon: "📍", section: "SEO Tools" },
   { href: "/admin/citations", label: "Citations", icon: "📋", section: "SEO Tools" },
-  { href: "/admin/seo-tasks", label: "SEO Tasks", icon: "✅", section: "SEO Tools" },
   { href: "/admin/competitors", label: "Competitors", icon: "🏆", section: "SEO Tools" },
-  { href: "/admin/site-audit", label: "Site Audit", icon: "⚡", section: "SEO Tools" },
   { href: "/admin/seo-report", label: "SEO Report", icon: "📄", section: "SEO Tools" },
 ];
 
@@ -65,16 +66,10 @@ export default function AdminSidebar({ user }: { user: { name?: string | null; e
 
       <div className="p-4 border-t border-gray-700">
         <p className="text-xs text-gray-400 truncate">{user?.name || user?.email}</p>
-        <Link
-          href="/dashboard"
-          className="text-xs text-blue-400 hover:text-blue-300 mt-2 block"
-        >
+        <Link href="/dashboard" className="text-xs text-blue-400 hover:text-blue-300 mt-2 block">
           🔀 Switch to Client View
         </Link>
-        <Link
-          href="/api/auth/signout"
-          className="text-xs text-red-400 hover:text-red-300 mt-1 block"
-        >
+        <Link href="/api/auth/signout" className="text-xs text-red-400 hover:text-red-300 mt-1 block">
           Sign out
         </Link>
       </div>
@@ -83,7 +78,6 @@ export default function AdminSidebar({ user }: { user: { name?: string | null; e
 
   return (
     <>
-      {/* Mobile hamburger button */}
       <button
         className="md:hidden fixed top-4 left-4 z-50 bg-gray-900 text-white p-2 rounded-lg shadow-lg"
         onClick={() => setOpen(true)}
@@ -93,12 +87,8 @@ export default function AdminSidebar({ user }: { user: { name?: string | null; e
         </svg>
       </button>
 
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex">
-        {sidebar}
-      </div>
+      <div className="hidden md:flex">{sidebar}</div>
 
-      {/* Mobile sidebar overlay */}
       {open && (
         <div className="md:hidden fixed inset-0 z-40 flex">
           <div className="flex">{sidebar}</div>

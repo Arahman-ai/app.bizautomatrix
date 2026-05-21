@@ -102,6 +102,7 @@ model Client {
   gbpAudit       GbpAudit?
   citations      Citation[]
   seoTasks       SeoTask[]
+  siteAuditRuns  SiteAuditRun[]
   competitors    Competitor[]
   pageSpeedResults PageSpeedResult[]
 }
@@ -315,11 +316,80 @@ model SeoTask {
   task        String
   category    String    @default("general")
   priority    String    @default("MEDIUM")
+  pageUrl     String?
+  issueType   String?
+  recommendation String?
   completed   Boolean   @default(false)
   completedAt DateTime?
   createdAt   DateTime  @default(now())
 
   client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// SITE AUDIT AUTOMATION
+// =====================
+
+model SiteAuditRun {
+  id           String          @id @default(cuid())
+  clientId     String
+  startUrl     String
+  status       String          @default("COMPLETED")
+  pagesCrawled Int             @default(0)
+  issuesFound  Int             @default(0)
+  tasksCreated Int             @default(0)
+  seoScore     Int?
+  summary      String?
+  createdAt    DateTime        @default(now())
+
+  client       Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  pages        SiteAuditPage[]
+  issues       SiteAuditIssue[]
+}
+
+model SiteAuditPage {
+  id              String          @id @default(cuid())
+  auditRunId      String
+  clientId        String
+  url             String
+  statusCode      Int?
+  title           String?
+  metaDescription String?
+  h1              String?
+  h1Count         Int             @default(0)
+  h2Count         Int             @default(0)
+  canonicalUrl    String?
+  internalLinks   Int             @default(0)
+  externalLinks   Int             @default(0)
+  images          Int             @default(0)
+  imagesMissingAlt Int            @default(0)
+  createdAt       DateTime        @default(now())
+
+  auditRun        SiteAuditRun    @relation(fields: [auditRunId], references: [id], onDelete: Cascade)
+  issues          SiteAuditIssue[]
+
+  @@index([clientId])
+  @@index([auditRunId])
+}
+
+model SiteAuditIssue {
+  id             String        @id @default(cuid())
+  auditRunId     String
+  pageId         String?
+  clientId       String
+  pageUrl        String
+  issueType      String
+  priority       String        @default("MEDIUM")
+  recommendation String
+  taskCreated    Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+
+  auditRun       SiteAuditRun  @relation(fields: [auditRunId], references: [id], onDelete: Cascade)
+  page           SiteAuditPage? @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([auditRunId])
+  @@index([pageId])
 }
 
 // =====================
