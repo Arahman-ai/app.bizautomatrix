@@ -58,6 +58,10 @@ function parseLocalLighthouseStdout(stdout: string): PerformanceResult | null {
 }
 
 async function runLocalLighthouse(url: string, strategy: "mobile" | "desktop"): Promise<PerformanceResult | null> {
+  if (process.env.VERCEL || process.env.DISABLE_LOCAL_LIGHTHOUSE === "true") {
+    return null;
+  }
+
   try {
     const lighthouseCli = path.join(
       process.cwd(),
