@@ -1,76 +1,82 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const PLANS = [
   {
-    name: "Free",
+    name: "Free Audit",
     price: 0,
+    priceLabel: "Free",
+    period: "audit",
     plan: "FREE",
-    desc: "Get started and explore the platform.",
+    desc: "Find the best first upgrade before paying.",
     features: [
-      "Free business audit report",
-      "Basic client dashboard",
-      "Up to 10 review requests/mo",
-      "Email support",
+      "Website + SEO review",
+      "Quote/contact flow check",
+      "Review automation opportunity",
+      "Top 5 quick wins",
     ],
-    cta: "Get Started Free",
+    cta: "Request Free Audit",
     highlight: false,
   },
   {
-    name: "Starter",
-    price: 49,
+    name: "BD Starter",
+    price: 250,
+    priceLabel: "BDT 25k+",
+    period: "setup",
     plan: "STARTER",
-    desc: "Perfect for new businesses.",
+    desc: "7-day implementation sprint for Bangladesh clients.",
     features: [
-      "Google Business Profile optimization",
-      "Photos, posts, categories & Q&A",
-      "Review generation system",
-      "Templates to get 5★ reviews fast",
-      "Monthly performance report",
-      "Client dashboard access 24/7",
+      "SEO task setup",
+      "Quote or WhatsApp inquiry flow",
+      "Review link and QR setup",
+      "Audit report and roadmap",
+      "Dashboard setup",
+      "Email/WhatsApp support",
     ],
-    cta: "Start Starter Plan",
+    cta: "Discuss Scope",
     highlight: false,
   },
   {
-    name: "Growth",
-    price: 99,
+    name: "US Starter",
+    price: 500,
+    priceLabel: "$500+",
+    period: "setup",
     plan: "GROWTH",
-    desc: "For businesses serious about ranking.",
+    desc: "7-day implementation sprint for USA clients.",
     features: [
-      "Everything in Starter",
-      "Local SEO & citations (50+ directories)",
-      "Social media management (8 posts/mo)",
-      "Competitor tracking & comparison",
-      "Bi-weekly performance reports",
-      "Priority WhatsApp support",
+      "Website and conversion fixes",
+      "SEO and PageSpeed task plan",
+      "Review request workflow",
+      "Lead tracking dashboard",
+      "PDF audit report",
+      "Monthly support option",
     ],
-    cta: "Start Growth Plan",
+    cta: "Request Audit",
     highlight: true,
   },
   {
-    name: "Pro",
-    price: 199,
+    name: "Monthly Support",
+    price: 150,
+    priceLabel: "$150+",
+    period: "month",
     plan: "PRO",
-    desc: "Full-service digital domination.",
+    desc: "Ongoing SEO, reviews, reports, and automation support.",
     features: [
-      "Everything in Growth",
-      "Google Ads management & optimization",
-      "Backlink building (high-authority)",
-      "Dedicated account manager",
-      "Weekly reports + monthly strategy call",
-      "Priority onboarding (results in 7 days)",
+      "Monthly SEO report",
+      "Review management",
+      "SEO task follow-up",
+      "Competitor checks",
+      "Dashboard review call",
+      "Automation improvement plan",
     ],
-    cta: "Start Pro Plan",
+    cta: "Plan Monthly Work",
     highlight: false,
   },
 ];
 
 export default function PricingCards() {
   const router = useRouter();
-  const [loading, setLoading] = useState<string | null>(null);
 
   const handleCheckout = async (plan: string) => {
     if (plan === "FREE") {
@@ -78,26 +84,11 @@ export default function PricingCards() {
       return;
     }
 
-    setLoading(plan);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
-      });
+    window.location.href =
+      "mailto:info@bizautomatrix.com?subject=BizAutomatrix starter scope&body=Website:%0ABusiness type:%0AWhich package:%20" +
+      encodeURIComponent(plan);
+    return;
 
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || "Something went wrong. Please try again.");
-      }
-    } catch {
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setLoading(null);
-    }
   };
 
   return (
@@ -121,29 +112,26 @@ export default function PricingCards() {
           <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
           <p className="text-gray-500 text-sm mt-1 mb-4">{plan.desc}</p>
           <div className="mb-6">
-            <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-            {plan.price > 0 && (
-              <span className="text-gray-500 text-sm">/month</span>
-            )}
+            <span className="text-4xl font-bold text-gray-900">{plan.priceLabel}</span>
+            <span className="text-gray-500 text-sm">/{plan.period}</span>
           </div>
           <ul className="space-y-2 mb-8 flex-1">
             {plan.features.map((f) => (
               <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
-                <span className="text-green-500 mt-0.5">✓</span>
+                <span className="text-green-500 mt-0.5">OK</span>
                 {f}
               </li>
             ))}
           </ul>
           <button
             onClick={() => handleCheckout(plan.plan)}
-            disabled={loading === plan.plan}
-            className={`w-full py-3 rounded-xl font-semibold transition-colors disabled:opacity-60 ${
+            className={`w-full py-3 rounded-xl font-semibold transition-colors ${
               plan.highlight
                 ? "bg-blue-600 text-white hover:bg-blue-700"
                 : "bg-gray-900 text-white hover:bg-gray-700"
             }`}
           >
-            {loading === plan.plan ? "Loading..." : plan.cta}
+            {plan.cta}
           </button>
         </div>
       ))}

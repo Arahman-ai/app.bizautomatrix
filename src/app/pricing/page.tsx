@@ -9,10 +9,10 @@ export default function PricingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
+              Free Audit, Then a Starter Scope
             </h1>
             <p className="text-xl text-gray-600">
-              Start free. Upgrade when you&apos;re ready. Cancel anytime.
+              Start with a no-cost audit. Approve paid implementation only after the first 7-day scope is clear.
             </p>
           </div>
           <PricingCards />

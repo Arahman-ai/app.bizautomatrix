@@ -38,6 +38,23 @@ export default async function AdminDashboard() {
         <p className="text-gray-500 mt-1">Overview of all activity</p>
       </div>
 
+      <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">This month&apos;s focus</p>
+            <h2 className="mt-1 text-xl font-bold text-gray-900">Close one paid client with the free audit to 7-day starter workflow.</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+              Add a prospect, run a site audit, create the PDF report, send the top 3 findings, then offer the Industrial Growth Starter only after the scope is clear.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a href="/admin/prospects" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 hover:bg-blue-100">Prospects</a>
+            <a href="/admin/site-audit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Run Audit</a>
+            <a href="/admin/seo-tasks" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 hover:bg-blue-100">SEO Tasks</a>
+          </div>
+        </div>
+      </div>
+
       {/* ── Prospect Pipeline ── */}
       <div className="mb-3">
         <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Prospect Pipeline</h2>

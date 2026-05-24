@@ -29,7 +29,7 @@ export default function Navbar() {
               Login
             </Link>
             <Link
-              href="#audit"
+              href="/#audit"
               className="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition-colors font-medium"
             >
               Free Audit
@@ -52,7 +52,7 @@ export default function Navbar() {
             <Link href="/#pricing" className="text-gray-600">Pricing</Link>
             <Link href="/blog" className="text-gray-600">Blog</Link>
             <Link href="/login" className="text-gray-600">Login</Link>
-            <Link href="#audit" className="text-blue-600 font-medium">Free Audit</Link>
+            <Link href="/#audit" className="text-blue-600 font-medium">Free Audit</Link>
           </div>
         )}
       </div>

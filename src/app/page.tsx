@@ -4,104 +4,110 @@ import Link from "next/link";
 
 const FEATURES = [
   {
-    icon: "⭐",
-    title: "Automated Review Requests",
-    desc: "Send review request emails and SMS to every customer automatically. More 5-star reviews = higher rank on Google Maps.",
+    icon: "SEO",
+    title: "Website + SEO Audits",
+    desc: "Crawl client websites, find technical SEO issues, create tasks, and generate a practical report before paid work begins.",
   },
   {
-    icon: "📍",
-    title: "Google Business Profile Audit",
-    desc: "We score your GBP across 10 ranking factors and fix every gap — category, description, photos, hours, and posts.",
+    icon: "RFQ",
+    title: "Quote & Inquiry Flow",
+    desc: "Improve quote forms, WhatsApp/call/email CTAs, lead tracking, and follow-up so qualified inquiries do not get lost.",
   },
   {
-    icon: "📈",
-    title: "Rank Tracker",
-    desc: "Weekly tracking of where your business ranks on Google Maps and web search for your target keywords.",
+    icon: "REV",
+    title: "Review Management",
+    desc: "Save Google review links, create QR codes, prepare request templates, and track review-request activity.",
   },
   {
-    icon: "📋",
-    title: "Citation Building",
-    desc: "Get listed on 30+ business directories with consistent NAP data — one of Google's strongest local trust signals.",
+    icon: "GBP",
+    title: "Google Business & Citations",
+    desc: "Audit GBP, NAP consistency, citations, and local trust signals for businesses that depend on search visibility.",
   },
   {
-    icon: "🏆",
-    title: "Competitor Analysis",
-    desc: "See exactly how you compare against local competitors on reviews, rankings, and GBP optimization.",
+    icon: "CRM",
+    title: "Task & Lead Dashboard",
+    desc: "Turn audit issues into automated, semi-automated, and manual tasks that an admin can review and complete.",
   },
   {
-    icon: "📄",
-    title: "Monthly SEO Reports",
-    desc: "Professional PDF reports showing rank movement, review growth, and citation progress — shareable with stakeholders.",
+    icon: "AI",
+    title: "AI-Assisted Workflow Ideas",
+    desc: "Plan next-step automations such as customer follow-up, service documentation, product catalogs, and reporting.",
   },
 ];
 
 const STEPS = [
   {
     step: "1",
-    title: "Get Your Free Audit",
-    desc: "Submit your business in 60 seconds. See your instant visibility score — and exactly what's hurting your ranking.",
+    title: "Run a Free Audit",
+    desc: "Review the website, SEO, review flow, inquiry process, and automation opportunities before asking for payment.",
   },
   {
     step: "2",
-    title: "We Build Your SEO Foundation",
-    desc: "We optimize your Google Business Profile, fix your NAP, build citations, and set up automated review requests.",
+    title: "Approve a 7-Day Scope",
+    desc: "Choose the first paid upgrade: website fixes, product/service SEO, quote flow, review setup, or dashboard work.",
   },
   {
     step: "3",
-    title: "Watch Your Ranking Climb",
-    desc: "Weekly rank tracking shows your progress. More reviews flow in automatically. Clients see results in 60–90 days.",
+    title: "Track Monthly Progress",
+    desc: "Use the dashboard for SEO tasks, review requests, citations, competitors, reports, and next automation steps.",
   },
 ];
 
 const PLANS = [
   {
-    name: "Free",
+    name: "Free Audit",
     price: 0,
+    priceLabel: "Free",
+    period: "audit",
     features: [
-      "10 review requests / month",
-      "GBP audit (view only)",
-      "Dashboard access",
-      "Community support",
+      "Website + SEO review",
+      "Quote/contact flow check",
+      "Review automation opportunity",
+      "Top 5 quick wins",
     ],
   },
   {
-    name: "Starter",
-    price: 49,
+    name: "BD Starter",
+    price: 250,
+    priceLabel: "BDT 25k+",
+    period: "setup",
     features: [
-      "100 review requests / month",
-      "GBP audit & optimization checklist",
-      "SEO task checklist",
-      "Monthly performance report",
-      "Next Best Action widget",
-      "Email support",
+      "BDT 25,000+ setup",
+      "7-day implementation sprint",
+      "SEO task setup",
+      "Quote or WhatsApp inquiry flow",
+      "Review link and QR setup",
+      "Audit report and roadmap",
     ],
   },
   {
-    name: "Growth",
-    price: 99,
+    name: "US Starter",
+    price: 500,
+    priceLabel: "$500+",
+    period: "setup",
     highlight: true,
     features: [
-      "500 review requests / month",
-      "Everything in Starter",
-      "Rank tracker (Maps & website)",
-      "Citation tracker (30+ directories)",
-      "Competitor analysis",
-      "Site audit & PageSpeed scores",
-      "Full SEO report",
-      "AI social media drafts",
-      "Priority support",
+      "USD 500+ setup",
+      "7-day implementation sprint",
+      "Website and conversion fixes",
+      "Review request workflow",
+      "Lead tracking dashboard",
+      "PDF audit report",
+      "Monthly support option",
     ],
   },
   {
-    name: "Pro",
-    price: 199,
+    name: "Monthly Support",
+    price: 150,
+    priceLabel: "$150+",
+    period: "month",
     features: [
-      "Unlimited review requests",
-      "Everything in Growth",
-      "Dedicated account manager",
-      "Monthly strategy call",
-      "White-label PDF reports",
-      "Multi-location support",
+      "Starts after setup",
+      "Monthly SEO report",
+      "Review management",
+      "SEO task follow-up",
+      "Competitor checks",
+      "Dashboard review call",
     ],
   },
 ];
@@ -116,27 +122,27 @@ export default function Home() {
       <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-blue-200 font-medium mb-4 uppercase tracking-widest text-sm">
-            For Local Business Owners
+            For industrial, local, engineering, and product businesses
           </p>
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Your Customers Are Searching.<br />Are They Finding You?
+            Turn Your Website Into<br />A Sales + Automation System
           </h1>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Most local businesses are invisible on Google Maps and web search — while competitors with more reviews and better profiles take every customer. BizAutomatrix fixes that.
+            Start with a free audit, then use BizAutomatrix to plan website upgrades, SEO tasks, review automation, quote capture, lead tracking, and AI-assisted follow-up.
           </p>
           <div className="flex flex-wrap justify-center gap-3 mb-8 text-sm text-blue-100">
-            <span className="bg-blue-500/40 px-4 py-2 rounded-full">✓ More Google reviews — automatically</span>
-            <span className="bg-blue-500/40 px-4 py-2 rounded-full">✓ Higher rank on Google Maps</span>
-            <span className="bg-blue-500/40 px-4 py-2 rounded-full">✓ See exactly where you're losing customers</span>
+            <span className="bg-blue-500/40 px-4 py-2 rounded-full">Website + SEO audit</span>
+            <span className="bg-blue-500/40 px-4 py-2 rounded-full">Review + quote flow</span>
+            <span className="bg-blue-500/40 px-4 py-2 rounded-full">7-day starter scope</span>
           </div>
           <a
             href="#audit"
             className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-50 transition-colors shadow-lg"
           >
-            Get Your Free Business Audit →
+            Request Free Audit
           </a>
           <p className="mt-4 text-blue-200 text-sm">
-            Takes 60 seconds. Completely free. No credit card.
+            Free audit first. Paid implementation only after scope approval.
           </p>
         </div>
       </section>
@@ -144,22 +150,22 @@ export default function Home() {
       {/* Problem bar */}
       <section className="bg-blue-900 text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <p className="text-center text-blue-300 text-sm font-medium uppercase tracking-widest mb-5">The problem most local businesses face</p>
+          <p className="text-center text-blue-300 text-sm font-medium uppercase tracking-widest mb-5">The problem most websites have</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div className="bg-blue-800/60 rounded-xl p-5">
               <div className="text-3xl mb-2">😤</div>
-              <p className="font-semibold text-white mb-1">Invisible on Google Maps</p>
-              <p className="text-blue-300 text-sm">Competitors with more reviews rank higher and steal your customers — even if your business is better.</p>
+              <p className="font-semibold text-white mb-1">Weak Buyer Path</p>
+              <p className="text-blue-300 text-sm">Visitors cannot quickly find services, products, proof, quote options, or the right next step.</p>
             </div>
             <div className="bg-blue-800/60 rounded-xl p-5">
               <div className="text-3xl mb-2">⏰</div>
-              <p className="font-semibold text-white mb-1">No Time for Marketing</p>
-              <p className="text-blue-300 text-sm">You&apos;re running your business. Posting on social media, asking for reviews, optimizing your profile — it never gets done.</p>
+              <p className="font-semibold text-white mb-1">Manual Follow-Up</p>
+              <p className="text-blue-300 text-sm">Quote requests, reviews, and leads are handled manually, so follow-up depends on memory instead of a system.</p>
             </div>
             <div className="bg-blue-800/60 rounded-xl p-5">
               <div className="text-3xl mb-2">📉</div>
-              <p className="font-semibold text-white mb-1">Don&apos;t Know What&apos;s Wrong</p>
-              <p className="text-blue-300 text-sm">Without a clear audit, you&apos;re guessing. You don&apos;t know which specific issues are costing you customers every day.</p>
+              <p className="font-semibold text-white mb-1">No Clear Priority</p>
+              <p className="text-blue-300 text-sm">Without an audit, it is hard to know whether to fix SEO, pages, reviews, quote flow, or automation first.</p>
             </div>
           </div>
         </div>
@@ -170,7 +176,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">How It Works</h2>
-            <p className="text-gray-600 text-lg">From invisible to ranking — in 3 steps.</p>
+            <p className="text-gray-600 text-lg">From audit to first implementation scope in 3 steps.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {STEPS.map((s) => (
@@ -191,10 +197,10 @@ export default function Home() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Find Out Why You&apos;re Not Ranking
+              Find the First Upgrade Worth Doing
             </h2>
             <p className="text-gray-600 text-lg">
-              Get your instant visibility score and a clear breakdown of what&apos;s stopping customers from finding you on Google.
+              Send the business details and website. We will review SEO, review flow, inquiry capture, and automation opportunities.
             </p>
             <div className="flex items-center justify-center gap-6 mt-5 flex-wrap">
               <a
@@ -225,9 +231,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Everything Your Business Needs
+              Everything Needed for the First Client Sprint
             </h2>
-            <p className="text-gray-600 text-lg">One platform to manage your entire online presence.</p>
+            <p className="text-gray-600 text-lg">One platform for audits, SEO tasks, review workflows, reports, and next actions.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((f) => (
@@ -245,40 +251,40 @@ export default function Home() {
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Our Promise to You</h2>
-            <p className="text-gray-600 text-lg">We stand behind everything we do.</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Simple First Step</h2>
+            <p className="text-gray-600 text-lg">Free audit first. Paid work only after the scope is clear.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
               <div className="text-5xl mb-4">🛡️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">30-Day Money-Back Guarantee</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Free Audit Before Payment</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                If you don&apos;t see results in your first 30 days, we&apos;ll refund your first month — no questions asked.
+                We review the website, SEO, reviews, and inquiry flow before proposing paid implementation.
               </p>
             </div>
             <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
               <div className="text-5xl mb-4">🚫</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">No Long-Term Contracts</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">7-Day Starter Scope</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Cancel anytime with one click. No cancellation fees, no fine print, no hassle. We earn your business every month.
+                The first paid package stays focused on the highest-impact website, SEO, review, and inquiry fixes.
               </p>
             </div>
             <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
               <div className="text-5xl mb-4">📞</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Real Human Support</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Monthly Only If Useful</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                You get a real person — not a chatbot. Call or email us anytime and we&apos;ll respond within one business day.
+                Ongoing SEO, review, report, and automation support can start after the first implementation is live.
               </p>
             </div>
           </div>
           <div className="mt-12 bg-blue-600 rounded-2xl p-8 text-center text-white">
-            <p className="text-2xl font-bold mb-2">Start risk-free today</p>
-            <p className="text-blue-100 mb-6">Get your free business audit — no credit card required.</p>
+            <p className="text-2xl font-bold mb-2">Start with the free audit</p>
+            <p className="text-blue-100 mb-6">We will show the first upgrade worth doing before any paid implementation.</p>
             <a
               href="#audit"
               className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-50 transition-colors"
             >
-              Get Your Free Audit →
+              Request Free Audit
             </a>
           </div>
         </div>
@@ -289,8 +295,8 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-3">Pricing</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Simple, Transparent Pricing</h2>
-            <p className="text-gray-500 text-lg">No contracts. No setup fees. Cancel anytime.</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Free Audit, Then a Starter Scope</h2>
+            <p className="text-gray-500 text-lg">Paid work starts only after the audit and scope are approved.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((plan) => (
@@ -312,14 +318,8 @@ export default function Home() {
                     {plan.name}
                   </h3>
                   <div className="flex items-end gap-1">
-                    {plan.price === 0 ? (
-                      <span className={`text-4xl font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>Free</span>
-                    ) : (
-                      <>
-                        <span className={`text-4xl font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>${plan.price}</span>
-                        <span className={`text-sm mb-1.5 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>/mo</span>
-                      </>
-                    )}
+                    <span className={`text-4xl font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>{plan.priceLabel}</span>
+                    <span className={`text-sm mb-1.5 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>/{plan.period}</span>
                   </div>
                 </div>
                 <ul className="space-y-2.5 mb-8 flex-1">
@@ -340,7 +340,7 @@ export default function Home() {
                       : "bg-gray-900 text-white hover:bg-blue-600"
                   }`}
                 >
-                  {plan.price === 0 ? "Start for Free →" : "Get Started →"}
+                  {plan.price === 0 ? "Request Free Audit ->" : "Discuss Scope ->"}
                 </Link>
               </div>
             ))}
@@ -365,32 +365,32 @@ export default function Home() {
           <div className="space-y-4">
             {[
               {
-                q: "How long does it take to see results?",
-                a: "Most clients see measurable rank improvements within 30–60 days. Full results (top 3 Maps position) typically take 60–90 days depending on your market competitiveness.",
+                q: "What happens after the free audit?",
+                a: "You receive the main issues, quick wins, and a recommended first scope. Paid work starts only if you approve that scope.",
               },
               {
-                q: "Do I need to sign a contract?",
-                a: "No contracts. All plans are month-to-month. You can upgrade, downgrade, or cancel anytime from your dashboard.",
+                q: "How much does the first paid step cost?",
+                a: "The starter scope usually starts around BDT 25,000 for Bangladesh clients or USD 500 for USA clients, depending on the audit findings.",
               },
               {
-                q: "What is a Google Business Profile audit?",
-                a: "We score your GBP across 10 ranking factors — completeness, categories, photos, reviews, posts, and more — then give you a checklist of exactly what to fix.",
+                q: "What does the platform help manage?",
+                a: "The app helps with site audits, SEO tasks, PageSpeed checks, review management, citations, competitors, rank tracking, and reports.",
               },
               {
                 q: "How do review requests work?",
                 a: "You enter a customer's name and email in your dashboard. We send them a branded email with a direct link to your Google review page. You can track who clicked and who left a review.",
               },
               {
-                q: "Can I upgrade or downgrade my plan later?",
-                a: "Yes. You can change your plan at any time from the Billing page. Upgrades take effect immediately.",
+                q: "Can this support industrial and engineering businesses?",
+                a: "Yes. The workflow is designed for local businesses, engineering firms, manufacturers, railway suppliers, product catalogs, and service providers.",
               },
               {
-                q: "What happens to my data if I cancel?",
-                a: "Your data is retained for 30 days after cancellation so you can export it. After 30 days it is permanently deleted.",
+                q: "Do you need website access immediately?",
+                a: "No. We can start with a public audit. Access is needed only after a paid implementation scope is approved.",
               },
               {
-                q: "Do you support multiple locations?",
-                a: "Multi-location support is included in the Pro plan. Contact us if you need a custom setup for agencies or franchises.",
+                q: "Can we continue monthly after the starter?",
+                a: "Yes. Monthly support can cover SEO tasks, reviews, reporting, content, citations, and automation improvements.",
               },
             ].map(({ q, a }) => (
               <details key={q} className="bg-white border border-gray-200 rounded-2xl group">
@@ -408,15 +408,15 @@ export default function Home() {
       {/* CTA */}
       <section className="bg-blue-600 text-white py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Your Competitors Are Getting Found. You Should Be Too.</h2>
+          <h2 className="text-3xl font-bold mb-4">Find the First Upgrade Worth Doing.</h2>
           <p className="text-blue-100 text-lg mb-8">
-            Get your free audit in 60 seconds and see your exact visibility score.
+            Start with a free audit, then decide whether the 7-day implementation scope is worth paying for.
           </p>
           <a
             href="#audit"
             className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-50 transition-colors"
           >
-            Get My Free Audit Score →
+            Request Free Audit
           </a>
         </div>
       </section>
@@ -426,7 +426,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
             <p className="font-bold text-white text-xl">BizAutomatrix</p>
-            <p className="text-sm mt-1">Grow your local business on autopilot.</p>
+            <p className="text-sm mt-1">Website, SEO, review, and automation systems.</p>
           </div>
           <div className="flex gap-8 text-sm">
             <a href="#features" className="hover:text-white transition-colors">Features</a>

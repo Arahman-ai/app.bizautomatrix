@@ -9,8 +9,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "BizAutomatrix — Grow Your Business on Autopilot",
-  description: "Automated marketing platform for local businesses. Reviews, social media, ads, and analytics in one place.",
+  title: "BizAutomatrix - Website, SEO & Automation Systems",
+  description: "Free audits and 7-day starter implementation for website upgrades, SEO, review automation, inquiry tracking, and AI-assisted workflows.",
 };
 
 export default function RootLayout({
