@@ -125,7 +125,7 @@ export default function Home() {
             For industrial, local, engineering, and product businesses
           </p>
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Turn Your Website Into<br />A Sales + Automation System
+            Turn Your Business Into<br />A Sales + Automation System
           </h1>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Start with a free audit, then use BizAutomatrix to plan website upgrades, SEO tasks, review automation, quote capture, lead tracking, and AI-assisted follow-up.
