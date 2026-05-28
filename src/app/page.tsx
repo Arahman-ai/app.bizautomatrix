@@ -432,6 +432,7 @@ export default function Home() {
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
             <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+            <a href="https://bizautomatrix.com" className="hover:text-white transition-colors">Main Website</a>
             <Link href="/login" className="hover:text-white transition-colors">Login</Link>
             <a href="mailto:info@bizautomatrix.com" className="hover:text-white transition-colors">Contact</a>
           </div>

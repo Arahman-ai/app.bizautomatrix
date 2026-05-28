@@ -25,6 +25,9 @@ export default function Navbar() {
             <Link href="/blog" className="text-gray-600 hover:text-blue-600 transition-colors">
               Blog
             </Link>
+            <a href="https://bizautomatrix.com" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Main Site
+            </a>
             <Link href="/login" className="text-gray-600 hover:text-blue-600 transition-colors">
               Login
             </Link>
@@ -51,6 +54,7 @@ export default function Navbar() {
             <Link href="/#features" className="text-gray-600">Features</Link>
             <Link href="/#pricing" className="text-gray-600">Pricing</Link>
             <Link href="/blog" className="text-gray-600">Blog</Link>
+            <a href="https://bizautomatrix.com" className="text-gray-600">Main Site</a>
             <Link href="/login" className="text-gray-600">Login</Link>
             <Link href="/#audit" className="text-blue-600 font-medium">Free Audit</Link>
           </div>
