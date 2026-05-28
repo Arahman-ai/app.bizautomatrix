@@ -154,7 +154,9 @@ export default function AdminSiteAudit() {
     });
     const d = await res.json();
     if (d.error) {
-      setPsError(d.error);
+      const updated = await (await fetch(`/api/admin/pagespeed?clientId=${selectedClient}`)).json();
+      setPsResults(updated.results ?? []);
+      setPsError("New PageSpeed test could not run. Showing the last saved result. To run a fresh test, add a Google PageSpeed API key or install Chrome on the server.");
     } else {
       const updated = await (await fetch(`/api/admin/pagespeed?clientId=${selectedClient}`)).json();
       setPsResults(updated.results ?? []);
@@ -204,7 +206,7 @@ export default function AdminSiteAudit() {
         <td>${escapeHtml(issue.issueType)}</td>
         <td><span class="pill ${escapeHtml(issue.priority).toLowerCase()}">${escapeHtml(issue.priority)}</span></td>
         <td>${escapeHtml(issue.recommendation)}</td>
-        <td>${issue.taskCreated ? "Created" : "Pending"}</td>
+        <td>${issue.taskCreated ? "Ready" : "Pending"}</td>
       </tr>
     `).join("");
     const issueSummaryRows = issueTypeCounts.slice(0, 12).map(([issueType, count]) => `
@@ -291,7 +293,7 @@ export default function AdminSiteAudit() {
             <div class="summary">
               <div class="card"><span>Pages Crawled</span><strong>${auditRun.pagesCrawled}</strong></div>
               <div class="card amber"><span>Issues Found</span><strong>${auditRun.issuesFound}</strong></div>
-              <div class="card green"><span>Tasks Created</span><strong>${auditRun.tasksCreated}</strong></div>
+              <div class="card green"><span>New Tasks Added</span><strong>${auditRun.tasksCreated}</strong></div>
               <div class="card slate"><span>SEO Score</span><strong>${auditRun.seoScore ?? 0}/100</strong></div>
             </div>
 
@@ -325,7 +327,7 @@ export default function AdminSiteAudit() {
             <h2>Audit Issues</h2>
             <table>
               <thead>
-                <tr><th>Page URL</th><th>Issue</th><th>Priority</th><th>Recommended Fix</th><th>Task</th></tr>
+                <tr><th>Page URL</th><th>Issue</th><th>Priority</th><th>Recommended Fix</th><th>Task Status</th></tr>
               </thead>
               <tbody>${issueRows}</tbody>
             </table>
@@ -396,8 +398,14 @@ export default function AdminSiteAudit() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <SummaryCard label="Pages Crawled" value={auditRun.pagesCrawled} tone="blue" />
               <SummaryCard label="Issues Found" value={auditRun.issuesFound} tone="amber" />
-              <SummaryCard label="Tasks Created" value={auditRun.tasksCreated} tone="green" />
+              <SummaryCard label="New Tasks Added" value={auditRun.tasksCreated} tone="green" />
               <SummaryCard label="SEO Score" value={`${auditRun.seoScore ?? 0}/100`} tone="slate" />
+            </div>
+          )}
+
+          {auditRun && auditRun.issuesFound > 0 && auditRun.tasksCreated === 0 && (
+            <div className="rounded-lg border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-800">
+              No new duplicate SEO tasks were added from this audit. Existing open tasks may already cover these issues.
             </div>
           )}
 
@@ -461,7 +469,11 @@ export default function AdminSiteAudit() {
                   {psLoading ? "Running..." : "Run Test"}
                 </button>
               </div>
-              {psError && <p className="text-red-500 text-sm mb-3">{psError}</p>}
+              {psError && (
+                <p className={`text-sm mb-3 ${latestPs ? "text-amber-600" : "text-red-500"}`}>
+                  {psError}
+                </p>
+              )}
 
               {latestPs ? (
                 <div>
@@ -515,7 +527,7 @@ export default function AdminSiteAudit() {
                       <th className="py-3 pr-4 font-semibold">Issue</th>
                       <th className="py-3 pr-4 font-semibold">Priority</th>
                       <th className="py-3 pr-4 font-semibold">Recommended Fix</th>
-                      <th className="py-3 font-semibold">Task</th>
+                      <th className="py-3 font-semibold">Task Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -527,7 +539,7 @@ export default function AdminSiteAudit() {
                           <span className={`rounded-full border px-2 py-1 text-xs font-semibold ${priorityStyle(issue.priority)}`}>{issue.priority}</span>
                         </td>
                         <td className="py-3 pr-4 text-gray-600">{issue.recommendation}</td>
-                        <td className="py-3 text-green-700">{issue.taskCreated ? "Created" : "Pending"}</td>
+                        <td className="py-3 text-green-700">{issue.taskCreated ? "Ready" : "Pending"}</td>
                       </tr>
                     ))}
                   </tbody>
