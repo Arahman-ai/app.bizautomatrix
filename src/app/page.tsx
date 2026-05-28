@@ -317,9 +317,9 @@ export default function Home() {
                   <h3 className={`text-lg font-bold mb-1 ${plan.highlight ? "text-white" : "text-gray-900"}`}>
                     {plan.name}
                   </h3>
-                  <div className="flex items-end gap-1">
+                  <div className="space-y-1">
                     <span className={`text-3xl leading-tight font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>{plan.priceLabel}</span>
-                    <span className={`text-sm mb-1.5 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>/{plan.period}</span>
+                    <span className={`block text-sm ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>{plan.period}</span>
                   </div>
                 </div>
                 <ul className="space-y-2.5 mb-8 flex-1">

@@ -116,9 +116,9 @@ export default function PricingCards() {
           )}
           <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
           <p className="text-gray-500 text-sm mt-1 mb-4">{plan.desc}</p>
-          <div className="mb-6">
+          <div className="mb-6 space-y-1">
             <span className="text-3xl leading-tight font-bold text-gray-900">{plan.priceLabel}</span>
-            <span className="text-gray-500 text-sm">/{plan.period}</span>
+            <span className="block text-gray-500 text-sm">{plan.period}</span>
           </div>
           <ul className="space-y-2 mb-8 flex-1">
             {plan.features.map((f) => (
