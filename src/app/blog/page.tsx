@@ -34,7 +34,7 @@ export default async function BlogPage() {
               Main Website
             </a>
             <a href="https://bizautomatrix.com/pricing.html" className="rounded-full bg-white/15 px-4 py-2 text-white hover:bg-white/25 transition-colors">
-              Pricing
+              Packages
             </a>
             <a href="https://bizautomatrix.com/#demo" className="rounded-full bg-white px-4 py-2 text-blue-700 hover:bg-blue-50 transition-colors">
               Free Audit

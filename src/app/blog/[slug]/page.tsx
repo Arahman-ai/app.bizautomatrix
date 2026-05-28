@@ -60,7 +60,7 @@ function BlogReturnLinks() {
         Main Website
       </a>
       <a href="https://bizautomatrix.com/pricing.html" className="rounded-full bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 transition-colors">
-        Pricing
+        Packages
       </a>
       <a href="https://bizautomatrix.com/#demo" className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition-colors">
         Free Audit

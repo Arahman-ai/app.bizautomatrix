@@ -130,7 +130,7 @@ export const posts: Post[] = [
 
 <h2>Is It Expensive?</h2>
 <p>Most business owners assume automation is something only big companies can afford. That's no longer true. Modern tools have made these systems accessible to any local business for less than the cost of one hour of employee time per week.</p>
-<p>At BizAutomatrix, our Starter plan begins at $49/month — less than $2/day — and handles your review automation, Google Business Profile tools, and monthly reporting automatically.</p>
+<p>At BizAutomatrix, we start with a free audit, then recommend the right review automation, Google Business Profile, and monthly reporting scope based on your business.</p>
 
 <h2>Getting Started</h2>
 <p>The best way to start is with a free audit of your current online presence. We'll show you exactly where automation would make the biggest impact for your specific business — at no cost and no obligation.</p>

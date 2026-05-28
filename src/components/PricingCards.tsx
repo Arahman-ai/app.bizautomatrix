@@ -6,8 +6,8 @@ const PLANS = [
   {
     name: "Free Audit",
     price: 0,
-    priceLabel: "Free",
-    period: "audit",
+    priceLabel: "No Cost",
+    period: "first step",
     plan: "FREE",
     desc: "Find the best first upgrade before paying.",
     features: [
@@ -22,10 +22,10 @@ const PLANS = [
   {
     name: "BD Starter",
     price: 250,
-    priceLabel: "BDT 25k+",
-    period: "setup",
+    priceLabel: "Custom Quote",
+    period: "after audit",
     plan: "STARTER",
-    desc: "7-day implementation sprint for Bangladesh clients.",
+    desc: "7-day implementation sprint scoped after audit.",
     features: [
       "SEO task setup",
       "Quote or WhatsApp inquiry flow",
@@ -34,16 +34,16 @@ const PLANS = [
       "Dashboard setup",
       "Email/WhatsApp support",
     ],
-    cta: "Discuss Scope",
+    cta: "Book Demo Call",
     highlight: false,
   },
   {
     name: "US Starter",
     price: 500,
-    priceLabel: "$500+",
-    period: "setup",
+    priceLabel: "Custom Quote",
+    period: "after audit",
     plan: "GROWTH",
-    desc: "7-day implementation sprint for USA clients.",
+    desc: "7-day implementation sprint scoped after audit.",
     features: [
       "Website and conversion fixes",
       "SEO and PageSpeed task plan",
@@ -52,14 +52,14 @@ const PLANS = [
       "PDF audit report",
       "Monthly support option",
     ],
-    cta: "Request Audit",
+    cta: "Book Demo Call",
     highlight: true,
   },
   {
     name: "Monthly Support",
     price: 150,
-    priceLabel: "$150+",
-    period: "month",
+    priceLabel: "Call Us",
+    period: "after setup",
     plan: "PRO",
     desc: "Ongoing SEO, reviews, reports, and automation support.",
     features: [
@@ -70,7 +70,7 @@ const PLANS = [
       "Dashboard review call",
       "Automation improvement plan",
     ],
-    cta: "Plan Monthly Work",
+    cta: "Call Us for Pricing",
     highlight: false,
   },
 ];
@@ -81,6 +81,11 @@ export default function PricingCards() {
   const handleCheckout = async (plan: string) => {
     if (plan === "FREE") {
       router.push("/signup");
+      return;
+    }
+
+    if (plan === "PRO") {
+      window.location.href = "tel:+14042037674";
       return;
     }
 
@@ -112,7 +117,7 @@ export default function PricingCards() {
           <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
           <p className="text-gray-500 text-sm mt-1 mb-4">{plan.desc}</p>
           <div className="mb-6">
-            <span className="text-4xl font-bold text-gray-900">{plan.priceLabel}</span>
+            <span className="text-3xl leading-tight font-bold text-gray-900">{plan.priceLabel}</span>
             <span className="text-gray-500 text-sm">/{plan.period}</span>
           </div>
           <ul className="space-y-2 mb-8 flex-1">

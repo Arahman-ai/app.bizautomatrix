@@ -57,8 +57,8 @@ const PLANS = [
   {
     name: "Free Audit",
     price: 0,
-    priceLabel: "Free",
-    period: "audit",
+    priceLabel: "No Cost",
+    period: "first step",
     features: [
       "Website + SEO review",
       "Quote/contact flow check",
@@ -69,10 +69,10 @@ const PLANS = [
   {
     name: "BD Starter",
     price: 250,
-    priceLabel: "BDT 25k+",
-    period: "setup",
+    priceLabel: "Custom Quote",
+    period: "after audit",
     features: [
-      "BDT 25,000+ setup",
+      "Bangladesh starter scope after audit",
       "7-day implementation sprint",
       "SEO task setup",
       "Quote or WhatsApp inquiry flow",
@@ -83,11 +83,11 @@ const PLANS = [
   {
     name: "US Starter",
     price: 500,
-    priceLabel: "$500+",
-    period: "setup",
+    priceLabel: "Custom Quote",
+    period: "after audit",
     highlight: true,
     features: [
-      "USD 500+ setup",
+      "USA starter scope after audit",
       "7-day implementation sprint",
       "Website and conversion fixes",
       "Review request workflow",
@@ -99,8 +99,8 @@ const PLANS = [
   {
     name: "Monthly Support",
     price: 150,
-    priceLabel: "$150+",
-    period: "month",
+    priceLabel: "Call Us",
+    period: "after setup",
     features: [
       "Starts after setup",
       "Monthly SEO report",
@@ -290,13 +290,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Packages */}
       <section id="pricing" className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-3">Pricing</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Free Audit, Then a Starter Scope</h2>
-            <p className="text-gray-500 text-lg">Paid work starts only after the audit and scope are approved.</p>
+            <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-3">Packages</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Free Audit, Then Custom Scope</h2>
+            <p className="text-gray-500 text-lg">We quote after reviewing the website, SEO, reviews, inquiry flow, and automation needs.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((plan) => (
@@ -318,7 +318,7 @@ export default function Home() {
                     {plan.name}
                   </h3>
                   <div className="flex items-end gap-1">
-                    <span className={`text-4xl font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>{plan.priceLabel}</span>
+                    <span className={`text-3xl leading-tight font-extrabold ${plan.highlight ? "text-white" : "text-gray-900"}`}>{plan.priceLabel}</span>
                     <span className={`text-sm mb-1.5 ${plan.highlight ? "text-blue-200" : "text-gray-400"}`}>/{plan.period}</span>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <Link
-                  href={plan.price === 0 ? "/signup" : "/signup"}
+                  href={plan.name === "Monthly Support" ? "tel:+14042037674" : "/signup"}
                   className={`w-full text-center py-3 rounded-xl font-bold text-sm transition-all ${
                     plan.highlight
                       ? "bg-white text-blue-600 hover:bg-yellow-400 hover:text-yellow-900"
@@ -340,7 +340,11 @@ export default function Home() {
                       : "bg-gray-900 text-white hover:bg-blue-600"
                   }`}
                 >
-                  {plan.price === 0 ? "Request Free Audit ->" : "Discuss Scope ->"}
+                  {plan.price === 0
+                    ? "Request Free Audit ->"
+                    : plan.name === "Monthly Support"
+                    ? "Call Us for Pricing ->"
+                    : "Book Demo Call ->"}
                 </Link>
               </div>
             ))}
@@ -370,7 +374,7 @@ export default function Home() {
               },
               {
                 q: "How much does the first paid step cost?",
-                a: "The starter scope usually starts around BDT 25,000 for Bangladesh clients or USD 500 for USA clients, depending on the audit findings.",
+                a: "We do not publish fixed public pricing. After the free audit, we share a clear quote based on the website, SEO, review flow, inquiry path, and automation scope.",
               },
               {
                 q: "What does the platform help manage?",
@@ -430,7 +434,7 @@ export default function Home() {
           </div>
           <div className="flex gap-8 text-sm">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="#pricing" className="hover:text-white transition-colors">Packages</a>
             <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
             <a href="https://bizautomatrix.com" className="hover:text-white transition-colors">Main Website</a>
             <Link href="/login" className="hover:text-white transition-colors">Login</Link>

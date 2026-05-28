@@ -9,10 +9,10 @@ export default function PricingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Free Audit, Then a Starter Scope
+              Free Audit, Then Custom Scope
             </h1>
             <p className="text-xl text-gray-600">
-              Start with a no-cost audit. Approve paid implementation only after the first 7-day scope is clear.
+              Public fixed prices are hidden because every website, SEO, review, and automation setup is different. Start with a no-cost audit, then approve a clear quote before paid work begins.
             </p>
           </div>
           <PricingCards />
