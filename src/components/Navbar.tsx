@@ -15,12 +15,18 @@ export default function Navbar() {
             <span className="text-2xl font-bold text-gray-900">Automatrix</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          <div className="hidden md:flex items-center gap-5 lg:gap-7">
             <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
               Home
             </Link>
-            <Link href="/#features" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Features
+            <Link href="/solutions/ai-automation" className="text-gray-600 hover:text-blue-600 transition-colors">
+              AI Automation
+            </Link>
+            <Link href="/solutions/manufacturing" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Manufacturing
+            </Link>
+            <Link href="/solutions/railway" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Railway
             </Link>
             <Link href="/#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">
               Packages
@@ -29,7 +35,7 @@ export default function Navbar() {
               Blog
             </Link>
             <a href="https://bizautomatrix.com" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Main Site
+              Main Website
             </a>
             <Link href="/login" className="text-gray-600 hover:text-blue-600 transition-colors">
               Login
@@ -55,10 +61,12 @@ export default function Navbar() {
         {menuOpen && (
           <div className="md:hidden py-4 flex flex-col gap-4 border-t border-gray-100">
             <Link href="/" className="text-gray-600">Home</Link>
-            <Link href="/#features" className="text-gray-600">Features</Link>
+            <Link href="/solutions/ai-automation" className="text-gray-600">AI Automation</Link>
+            <Link href="/solutions/manufacturing" className="text-gray-600">Manufacturing</Link>
+            <Link href="/solutions/railway" className="text-gray-600">Railway</Link>
             <Link href="/#pricing" className="text-gray-600">Packages</Link>
             <Link href="/blog" className="text-gray-600">Blog</Link>
-            <a href="https://bizautomatrix.com" className="text-gray-600">Main Site</a>
+            <a href="https://bizautomatrix.com" className="text-gray-600">Main Website</a>
             <Link href="/login" className="text-gray-600">Login</Link>
             <Link href="/#audit" className="text-blue-600 font-medium">Free Audit</Link>
           </div>

@@ -53,6 +53,24 @@ const STEPS = [
   },
 ];
 
+const SOLUTION_LINKS = [
+  {
+    title: "AI Automation",
+    href: "/solutions/ai-automation",
+    desc: "Email automation, custom AI agents, reporting workflows, dashboards, CRM, and n8n integrations.",
+  },
+  {
+    title: "Manufacturing",
+    href: "/solutions/manufacturing",
+    desc: "Product catalogs, RFQ flows, asset records, maintenance tracking, production dashboards, and AI document support.",
+  },
+  {
+    title: "Railway",
+    href: "/solutions/railway",
+    desc: "Railway supplier websites, tender/document workflows, inspection reporting, project dashboards, and AI knowledge bases.",
+  },
+];
+
 const PLANS = [
   {
     name: "Free Audit",
@@ -167,6 +185,38 @@ export default function Home() {
               <p className="font-semibold text-white mb-1">No Clear Priority</p>
               <p className="text-blue-300 text-sm">Without an audit, it is hard to know whether to fix SEO, pages, reviews, quote flow, or automation first.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solution Paths */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-blue-600 font-semibold text-sm uppercase tracking-widest mb-3">
+              Solution views
+            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              AI, Manufacturing, and Railway Workflows
+            </h2>
+            <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+              The app supports more than SEO. Use these pages to explain automation, reporting, maintenance, asset, and industrial workflow opportunities before a client logs in.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SOLUTION_LINKS.map((solution) => (
+              <Link
+                key={solution.href}
+                href={solution.href}
+                className="group rounded-2xl border border-gray-200 bg-gray-50 p-7 transition-all hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:shadow-lg"
+              >
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700">
+                  {solution.title}
+                </h3>
+                <p className="text-gray-600 leading-7 mb-5">{solution.desc}</p>
+                <span className="font-semibold text-blue-600">View solution -&gt;</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -432,8 +482,11 @@ export default function Home() {
             <p className="font-bold text-white text-xl">BizAutomatrix</p>
             <p className="text-sm mt-1">Website, SEO, review, and automation systems.</p>
           </div>
-          <div className="flex gap-8 text-sm">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
+            <Link href="/solutions/ai-automation" className="hover:text-white transition-colors">AI Automation</Link>
+            <Link href="/solutions/manufacturing" className="hover:text-white transition-colors">Manufacturing</Link>
+            <Link href="/solutions/railway" className="hover:text-white transition-colors">Railway</Link>
             <a href="#pricing" className="hover:text-white transition-colors">Packages</a>
             <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
             <a href="https://bizautomatrix.com" className="hover:text-white transition-colors">Main Website</a>

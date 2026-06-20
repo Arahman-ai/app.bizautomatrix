@@ -42,6 +42,15 @@ export default function LoginPage() {
             <span className="text-blue-600">Biz</span>
             <span className="text-gray-900">Automatrix</span>
           </Link>
+          <div className="mt-4 flex justify-center gap-3 text-sm font-medium">
+            <Link href="/" className="text-blue-600 hover:underline">
+              App Home
+            </Link>
+            <span className="text-gray-300">|</span>
+            <a href="https://bizautomatrix.com" className="text-blue-600 hover:underline">
+              Main Website
+            </a>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mt-6">Welcome back</h1>
           <p className="text-gray-500 mt-1">Sign in to your account</p>
         </div>
@@ -98,6 +107,13 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Came from bizautomatrix.com?{" "}
+          <a href="https://bizautomatrix.com" className="text-blue-600 font-medium hover:underline">
+            Return to the main website
+          </a>
+        </p>
 
         <p className="text-center text-sm text-gray-400 mt-4">
           <Link href="/" className="hover:text-gray-600 transition-colors">
