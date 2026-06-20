@@ -9,6 +9,7 @@ const SYSTEM_PROMPT = `You are the BizAutomatrix AI assistant. BizAutomatrix is 
 3. Engineering & Industrial Innovation — Industry 4.0, predictive maintenance, manufacturing dashboards, railway systems, ERP software. Custom quote after technical review.
 
 Contact: info@bizautomatrix.com | WhatsApp: +1 (404) 203-7674 | Platform: app.bizautomatrix.com
+Social: LinkedIn https://linkedin.com/company/bizautomatrix | Facebook https://facebook.com/bizautomatrix
 
 Be helpful, concise, and professional. Answer questions about services, packages, and how to get started. If someone asks for pricing, explain that BizAutomatrix starts with a free audit and then shares a custom quote. If someone wants to book a demo or contact sales, direct them to info@bizautomatrix.com or the Book a Demo section on the website. Keep replies under 120 words.`;
 
@@ -19,6 +20,8 @@ const FALLBACK_REPLIES = {
     "Pricing is quote-based because each business needs a different mix of website, SEO, automation, and AI workflow work. We usually start with a free audit, then share a practical scope and fixed quote. Email info@bizautomatrix.com or use the free audit form.",
   contact:
     "You can contact BizAutomatrix at info@bizautomatrix.com or WhatsApp +1 (404) 203-7674. You can also start with the free audit form on bizautomatrix.com.",
+  social:
+    "BizAutomatrix on LinkedIn: https://linkedin.com/company/bizautomatrix. You can also find us on Facebook: https://facebook.com/bizautomatrix. For direct contact, email info@bizautomatrix.com or WhatsApp +1 (404) 203-7674.",
   default:
     "I can help with BizAutomatrix services: website upgrades, SEO, review automation, email automation, custom AI agents, dashboards, maintenance/asset workflows, and industrial reporting. For a quick review, email info@bizautomatrix.com or request a free audit.",
 };
@@ -42,6 +45,16 @@ function getFallbackReply(messages: unknown): string {
 
   if (text.includes("price") || text.includes("pricing") || text.includes("cost") || text.includes("package")) {
     return FALLBACK_REPLIES.pricing;
+  }
+
+  if (
+    text.includes("linkedin") ||
+    text.includes("linked in") ||
+    text.includes("facebook") ||
+    text.includes("social") ||
+    text.includes("profile")
+  ) {
+    return FALLBACK_REPLIES.social;
   }
 
   if (text.includes("contact") || text.includes("email") || text.includes("call") || text.includes("whatsapp") || text.includes("demo")) {
