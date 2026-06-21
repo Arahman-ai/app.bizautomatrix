@@ -15,10 +15,22 @@ export async function POST() {
 
   const webhookUrl = process.env.N8N_PROSPECT_WEBHOOK_URL;
   if (!webhookUrl) {
-    return NextResponse.json({ error: "Webhook URL not configured" }, { status: 500 });
+    return NextResponse.json({
+      success: false,
+      mode: "manual",
+      message: "Google Maps scraper is not connected on this free deployment. Use Import CSV/Add Prospect, or add N8N_PROSPECT_WEBHOOK_URL to enable automatic scraping.",
+    });
   }
 
-  const res = await fetch(webhookUrl, { method: "GET" });
+  let res: Response;
+  try {
+    res = await fetch(webhookUrl, { method: "GET" });
+  } catch {
+    return NextResponse.json(
+      { error: "Could not reach the prospect scraper webhook." },
+      { status: 502 }
+    );
+  }
 
   if (!res.ok) {
     return NextResponse.json({ error: `n8n returned ${res.status}` }, { status: 502 });

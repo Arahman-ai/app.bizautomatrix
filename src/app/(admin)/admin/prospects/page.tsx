@@ -160,7 +160,11 @@ export default function ProspectsPage() {
     setRunBanner(null);
     try {
       const res = await fetch("/api/admin/prospect-config/run", { method: "POST", headers: { "Content-Type": "application/json" } });
-      setRunBanner(res.ok ? { ok: true, msg: "Workflow triggered!" } : { ok: false, msg: `Error ${res.status}` });
+      const data = await res.json().catch(() => ({}));
+      setRunBanner(res.ok
+        ? { ok: !!data.success, msg: data.message ?? "Workflow triggered!" }
+        : { ok: false, msg: data.error ?? `Error ${res.status}` }
+      );
     } catch {
       setRunBanner({ ok: false, msg: "Failed to reach server" });
     } finally {
@@ -175,7 +179,15 @@ export default function ProspectsPage() {
     setFindEmailsBanner(null);
     try {
       const res = await fetch("/api/admin/prospect-config/find-emails", { method: "POST" });
-      setFindEmailsBanner(res.ok ? { ok: true, msg: "Email finder running! Check back in a few minutes." } : { ok: false, msg: `Error ${res.status}` });
+      const data = await res.json().catch(() => ({}));
+      setFindEmailsBanner(res.ok
+        ? { ok: true, msg: data.message ?? "Email finder completed." }
+        : { ok: false, msg: data.error ?? `Error ${res.status}` }
+      );
+      if (res.ok) {
+        const refreshed = await (await fetch(`/api/admin/prospects?status=${filter}`)).json();
+        setProspects(refreshed.prospects);
+      }
     } catch {
       setFindEmailsBanner({ ok: false, msg: "Failed to reach server" });
     } finally {
@@ -682,7 +694,7 @@ export default function ProspectsPage() {
                   {findingEmails ? (
                     <><svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" /></svg>Finding...</>
                   ) : (
-                    <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>Find Emails (AI)</>
+                    <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>Find Emails (Free)</>
                   )}
                 </button>
                 {findEmailsBanner && (
