@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin/leads", label: "Leads", icon: "🎯", section: null },
   { href: "/admin/clients", label: "Clients", icon: "👥", section: null },
   { href: "/admin/email-template", label: "Email Template", icon: "✉️", section: null },
+  { href: "/admin/marketing-agent", label: "Marketing Agent", icon: "M", section: null },
   { href: "/admin/site-audit", label: "Site Audit", icon: "⚡", section: "SEO Tools" },
   { href: "/admin/seo-tasks", label: "SEO Tasks", icon: "✅", section: "SEO Tools" },
   { href: "/admin/review-management", label: "Review Mgmt", icon: "R", section: "SEO Tools" },

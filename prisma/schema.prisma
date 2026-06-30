@@ -105,6 +105,7 @@ model Client {
   siteAuditRuns  SiteAuditRun[]
   competitors    Competitor[]
   pageSpeedResults PageSpeedResult[]
+  marketingDrafts MarketingAgentDraft[]
 }
 
 enum ClientStatus {
@@ -470,4 +471,49 @@ enum ReviewRequestStatus {
   SENT
   CLICKED
   FAILED
+}
+
+// =====================
+// MARKETING AGENT
+// =====================
+
+model MarketingAgentDraft {
+  id           String               @id @default(cuid())
+  clientId     String?
+  title        String
+  channel      MarketingChannel
+  audience     String               @default("BizAutomatrix prospects")
+  goal         String?
+  cadence      String               @default("weekly")
+  content      String
+  status       MarketingDraftStatus @default(DRAFT)
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  notes        String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  client       Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([channel])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum MarketingChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  LINKEDIN
+  FACEBOOK
+  INSTAGRAM
+}
+
+enum MarketingDraftStatus {
+  DRAFT
+  REVIEWED
+  APPROVED
+  SENT
+  SKIPPED
 }
