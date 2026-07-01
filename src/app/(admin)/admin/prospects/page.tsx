@@ -83,6 +83,9 @@ export default function ProspectsPage() {
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [outreachDrafting, setOutreachDrafting] = useState(false);
+  const [outreachBanner, setOutreachBanner] = useState<{ ok: boolean; msg: string } | null>(null);
+  const outreachTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Settings panel state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -253,17 +256,6 @@ export default function ProspectsPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
         });
-        if (status === "APPROVED") {
-          const prospect = prospects.find((p) => p.id === id);
-          if (prospect?.email) {
-            await fetch(`/api/admin/prospects/${id}/outreach`, { method: "POST" });
-            await fetch(`/api/admin/prospects/${id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ status: "CONTACTED" }),
-            });
-          }
-        }
       })
     );
     setProspects((prev) => prev.filter((p) => !selectedIds.has(p.id)));
@@ -278,19 +270,33 @@ export default function ProspectsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
-    if (status === "APPROVED") {
-      const prospect = prospects.find((p) => p.id === id);
-      if (prospect?.email) {
-        await fetch(`/api/admin/prospects/${id}/outreach`, { method: "POST" });
-        await fetch(`/api/admin/prospects/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "CONTACTED" }),
-        });
-      }
-    }
     setProspects((prev) => prev.filter((p) => p.id !== id));
     setSaving(null);
+  }
+
+  async function generateOutreachDrafts(ids: string[]) {
+    if (ids.length === 0) return;
+    setOutreachDrafting(true);
+    setOutreachBanner(null);
+    try {
+      const res = await fetch("/api/admin/prospects/outreach-drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setOutreachBanner(res.ok
+        ? { ok: true, msg: `${data.message ?? "Drafts created."} Go to Marketing Agent to review and approve before sending.` }
+        : { ok: false, msg: data.error ?? `Error ${res.status}` }
+      );
+      if (res.ok) setSelectedIds(new Set());
+    } catch {
+      setOutreachBanner({ ok: false, msg: "Could not create outreach drafts." });
+    } finally {
+      setOutreachDrafting(false);
+      if (outreachTimerRef.current) clearTimeout(outreachTimerRef.current);
+      outreachTimerRef.current = setTimeout(() => setOutreachBanner(null), 9000);
+    }
   }
 
   async function saveEmail(id: string, value: string) {
@@ -772,10 +778,21 @@ export default function ProspectsPage() {
       </div>
 
       {/* ── Bulk action toolbar ── */}
+      {outreachBanner && (
+        <div className={`mb-4 rounded-lg px-4 py-3 text-sm border ${outreachBanner.ok ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"}`}>
+          {outreachBanner.msg}{" "}
+          {outreachBanner.ok && <a href="/admin/marketing-agent" className="font-semibold underline">Open Marketing Agent</a>}
+        </div>
+      )}
+
       {selectedIds.size > 0 && (
         <div className="mb-4 flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl">
           <span className="text-sm font-medium text-blue-700">{selectedIds.size} selected</span>
           <div className="flex gap-2 ml-2">
+            <button disabled={bulkSaving || outreachDrafting} onClick={() => generateOutreachDrafts([...selectedIds])}
+              className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors">
+              {outreachDrafting ? "Creating..." : `Generate Email Drafts (${selectedIds.size})`}
+            </button>
             {filter === "PENDING" && (
               <>
                 <button disabled={bulkSaving} onClick={() => bulkUpdateStatus("APPROVED")}
@@ -920,11 +937,11 @@ export default function ProspectsPage() {
                         {(p.status === "APPROVED" || p.status === "CONTACTED") && p.email && (
                           <button disabled={saving === p.id} onClick={async () => {
                             setSaving(p.id);
-                            await fetch(`/api/admin/prospects/${p.id}/outreach`, { method: "POST" });
+                            await generateOutreachDrafts([p.id]);
                             setSaving(null);
                           }}
                             className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200 disabled:opacity-50">
-                            Send Again
+                            Draft Email
                           </button>
                         )}
                         <button disabled={saving === p.id} onClick={async () => {

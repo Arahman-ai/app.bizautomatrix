@@ -142,6 +142,9 @@ model Prospect {
   emailSentAt  DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
+
+  marketingDrafts MarketingAgentDraft[]
+  outreachLogs    OutreachEmailLog[]
 }
 
 enum ProspectStatus {
@@ -480,6 +483,8 @@ enum ReviewRequestStatus {
 model MarketingAgentDraft {
   id           String               @id @default(cuid())
   clientId     String?
+  prospectId   String?
+  recipientEmail String?
   title        String
   channel      MarketingChannel
   audience     String               @default("BizAutomatrix prospects")
@@ -494,11 +499,36 @@ model MarketingAgentDraft {
   updatedAt    DateTime             @updatedAt
 
   client       Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  prospect     Prospect?            @relation(fields: [prospectId], references: [id], onDelete: SetNull)
+  outreachLogs OutreachEmailLog[]
 
   @@index([clientId])
+  @@index([prospectId])
+  @@index([recipientEmail])
   @@index([channel])
   @@index([status])
   @@index([createdAt])
+}
+
+model OutreachEmailLog {
+  id             String   @id @default(cuid())
+  prospectId     String?
+  draftId        String?
+  recipientEmail String
+  subject        String
+  body           String
+  status         String   @default("SENT")
+  sentAt         DateTime @default(now())
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  prospect       Prospect? @relation(fields: [prospectId], references: [id], onDelete: SetNull)
+  draft          MarketingAgentDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+
+  @@index([prospectId])
+  @@index([draftId])
+  @@index([recipientEmail])
+  @@index([expiresAt])
 }
 
 enum MarketingChannel {

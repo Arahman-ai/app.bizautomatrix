@@ -7,6 +7,8 @@ type DraftStatus = "DRAFT" | "REVIEWED" | "APPROVED" | "SENT" | "SKIPPED";
 
 type Draft = {
   id: string;
+  prospectId: string | null;
+  recipientEmail: string | null;
   title: string;
   channel: Channel;
   audience: string;
@@ -166,8 +168,17 @@ export default function MarketingAgentPage() {
   }
 
   async function sendEmailDraft(draft: Draft) {
-    const to = window.prompt("Send this email draft to:", sendTo || "info@bizautomatrix.com");
+    if (draft.prospectId && draft.status !== "APPROVED") {
+      showBanner(false, "Review, edit, save, and mark this prospect email APPROVED before sending.");
+      return;
+    }
+
+    const defaultRecipient = draft.recipientEmail || sendTo || "info@bizautomatrix.com";
+    const to = draft.prospectId
+      ? defaultRecipient
+      : window.prompt("Send this email draft to:", defaultRecipient);
     if (!to) return;
+    if (draft.prospectId && !window.confirm(`Send approved email to ${to}?`)) return;
     setSendTo(to);
     setSavingId(draft.id);
     try {
@@ -382,6 +393,7 @@ function DraftCard({
         <div className="flex flex-wrap items-center gap-2">
           <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${CHANNEL_STYLES[draft.channel]}`}>{draft.channel}</span>
           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[status]}`}>{status}</span>
+          {draft.recipientEmail && <span className="text-xs font-medium text-gray-500">To: {draft.recipientEmail}</span>}
           <span className="text-xs text-gray-400">{new Date(draft.createdAt).toLocaleString()}</span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -398,10 +410,10 @@ function DraftCard({
           {draft.channel === "EMAIL" && (
             <button
               onClick={onSendEmail}
-              disabled={saving}
+              disabled={saving || Boolean(draft.prospectId && draft.status !== "APPROVED")}
               className="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
             >
-              Send Email
+              {draft.prospectId ? "Send Approved" : "Send Email"}
             </button>
           )}
         </div>
